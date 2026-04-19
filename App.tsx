@@ -227,6 +227,7 @@ const App: React.FC = () => {
                 onClick={() => setShowSettings(true)}
                 className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors"
                 title="AI Settings"
+                aria-label="Open AI settings"
               >
                 <Settings className="w-5 h-5" />
               </button>
@@ -247,7 +248,7 @@ const App: React.FC = () => {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         {/* Paywall Banner */}
-        {!isPaid && (
+        {!isPaid && !useCustomKey && (
           <div className="max-w-4xl mx-auto mb-12 p-8 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-3xl text-white shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-10">
               <Lock className="w-32 h-32" />
@@ -352,12 +353,14 @@ const App: React.FC = () => {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Enter a thought, puzzle, question, or complex situation for analysis..."
+                    aria-label="Problem statement to analyze"
                     className="w-full h-32 p-4 pr-12 rounded-2xl border-2 border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none text-slate-700 shadow-sm"
                     disabled={isLoading}
                   />
                   <button
                     onClick={handleAnalyze}
                     disabled={isLoading || !input.trim()}
+                    aria-label="Submit analysis request"
                     className="absolute bottom-4 right-4 p-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
                   >
                     {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
@@ -519,7 +522,7 @@ const App: React.FC = () => {
                 />
                 <FAQItem 
                   question="Is the payment secure?" 
-                  answer="Yes, all payments are processed through Stripe, the industry standard for secure online transactions. We never store your credit card information." 
+                  answer="Yes. All payments are processed by PayPal and card details are handled on PayPal's secure infrastructure. We do not store your card information." 
                 />
                 <FAQItem 
                   question="Can I use my own API key?" 
@@ -615,6 +618,7 @@ const App: React.FC = () => {
               <button 
                 onClick={() => setShowSettings(false)}
                 className="p-2 text-slate-400 hover:bg-white hover:text-slate-600 rounded-full transition-all"
+                aria-label="Close settings"
               >
                 <X className="w-5 h-5" />
               </button>
