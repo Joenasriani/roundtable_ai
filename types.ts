@@ -15,9 +15,9 @@ export interface ExpertAnalysis {
 
 export interface Disagreement {
   description: string;
-  evidenceStrength: number; // 0-1 scale
-  realWorldImpact: number; // 0-1 scale
-  riskIfIncorrect: number; // 0-1 scale
+  evidenceStrength: number; // Normalized to 0-10 for UI display
+  realWorldImpact: number; // Normalized to 0-10 for UI display
+  riskIfIncorrect: number; // Normalized to 0-10 for UI display
 }
 
 export interface Debate {
@@ -33,7 +33,7 @@ export interface FinalVerdict {
   economicFeasibility: string;
   ethicalGovernance: string;
   risksTradeOffs: string;
-  confidenceLevel: number; // 0-1 scale
+  confidenceLevel: number; // Normalized to percentage (0-100) for UI display
   failureConditions: string;
 }
 

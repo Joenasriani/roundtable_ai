@@ -3,6 +3,72 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { RoundtableResponse } from "../types";
 import { SYSTEM_PROMPT } from "../constants";
 
+const EVIDENCE_LABELS = new Set(["Established Fact", "Strong Evidence", "Theoretical Interpretation"]);
+
+const toSafeString = (value: unknown, fallback = "Not provided."): string =>
+  typeof value === "string" && value.trim().length > 0 ? value : fallback;
+
+const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value));
+
+const toScaleOfTen = (value: unknown): number => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return 0;
+  const scaled = numeric <= 1 ? numeric * 10 : numeric;
+  return clamp(Math.round(scaled), 0, 10);
+};
+
+const toPercent = (value: unknown): number => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return 0;
+  const scaled = numeric <= 1 ? numeric * 100 : numeric;
+  return clamp(Math.round(scaled), 0, 100);
+};
+
+const normalizeRoundtableResponse = (raw: any): RoundtableResponse => {
+  const experts = Array.isArray(raw?.experts)
+    ? raw.experts
+        .filter((expert: any) => typeof expert?.field === "string")
+        .map((expert: any) => ({
+          field: toSafeString(expert.field, "Unknown Field"),
+          technicalAnalysis: toSafeString(expert.technicalAnalysis),
+          plainLanguage: toSafeString(expert.plainLanguage),
+          keyClaims: Array.isArray(expert.keyClaims)
+            ? expert.keyClaims.map((claim: any) => ({
+                text: toSafeString(claim?.text),
+                label: EVIDENCE_LABELS.has(claim?.label) ? claim.label : "Strong Evidence",
+              }))
+            : [],
+        }))
+    : [];
+
+  return {
+    intent: Array.isArray(raw?.intent) ? raw.intent.filter((tag: any) => typeof tag === "string" && tag.trim().length > 0) : [],
+    experts,
+    debate: {
+      agreements: Array.isArray(raw?.debate?.agreements) ? raw.debate.agreements.filter((item: any) => typeof item === "string") : [],
+      conflicts: Array.isArray(raw?.debate?.conflicts)
+        ? raw.debate.conflicts.map((conflict: any) => ({
+            description: toSafeString(conflict?.description),
+            evidenceStrength: toScaleOfTen(conflict?.evidenceStrength),
+            realWorldImpact: toScaleOfTen(conflict?.realWorldImpact),
+            riskIfIncorrect: toScaleOfTen(conflict?.riskIfIncorrect),
+          }))
+        : [],
+      resolution: toSafeString(raw?.debate?.resolution),
+      uncertainty: toSafeString(raw?.debate?.uncertainty),
+    },
+    verdict: {
+      coreConclusion: toSafeString(raw?.verdict?.coreConclusion),
+      supportingEvidenceSummary: toSafeString(raw?.verdict?.supportingEvidenceSummary),
+      economicFeasibility: toSafeString(raw?.verdict?.economicFeasibility),
+      ethicalGovernance: toSafeString(raw?.verdict?.ethicalGovernance),
+      risksTradeOffs: toSafeString(raw?.verdict?.risksTradeOffs),
+      confidenceLevel: toPercent(raw?.verdict?.confidenceLevel),
+      failureConditions: toSafeString(raw?.verdict?.failureConditions),
+    },
+  };
+};
+
 export const generateRoundtableAnalysis = async (userInput: string, customApiKey?: string): Promise<RoundtableResponse> => {
   // First, try the server-side proxy (which uses OpenRouter if configured)
   // We only skip this if a custom API key is explicitly provided by the user
@@ -15,7 +81,8 @@ export const generateRoundtableAnalysis = async (userInput: string, customApiKey
       });
 
       if (serverResponse.ok) {
-        return await serverResponse.json();
+        const serverData = await serverResponse.json();
+        return normalizeRoundtableResponse(serverData);
       }
     } catch (e) {
       console.warn("Server-side analysis unavailable, falling back to client-side Gemini...", e);
@@ -111,7 +178,7 @@ export const generateRoundtableAnalysis = async (userInput: string, customApiKey
       });
 
       const jsonStr = response.text.trim();
-      return JSON.parse(jsonStr) as RoundtableResponse;
+      return normalizeRoundtableResponse(JSON.parse(jsonStr));
     } catch (error: any) {
       lastError = error;
       console.warn(`Model ${model} failed, trying next...`, error);
