@@ -4,6 +4,7 @@ import { RoundtableResponse } from "../types";
 import { SYSTEM_PROMPT } from "../constants";
 
 const EVIDENCE_LABELS = new Set(["Established Fact", "Strong Evidence", "Theoretical Interpretation"]);
+const DEFAULT_EVIDENCE_LABEL = "Strong Evidence";
 
 const toSafeString = (value: unknown, fallback = "Not provided."): string =>
   typeof value === "string" && value.trim().length > 0 ? value : fallback;
@@ -35,7 +36,7 @@ const normalizeRoundtableResponse = (raw: any): RoundtableResponse => {
           keyClaims: Array.isArray(expert.keyClaims)
             ? expert.keyClaims.map((claim: any) => ({
                 text: toSafeString(claim?.text),
-                label: EVIDENCE_LABELS.has(claim?.label) ? claim.label : "Strong Evidence",
+                label: EVIDENCE_LABELS.has(claim?.label) ? claim.label : DEFAULT_EVIDENCE_LABEL,
               }))
             : [],
         }))

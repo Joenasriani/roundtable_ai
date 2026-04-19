@@ -1,5 +1,8 @@
 import { SYSTEM_PROMPT } from "../constants";
 
+const OPENROUTER_MODEL = "google/gemini-2.0-flash-lite-preview-02-05:free";
+const DEFAULT_APP_URL = "https://ai.studio/build";
+
 const parseBody = (body: unknown): any => {
   if (!body) return {};
   if (typeof body === "string") {
@@ -34,11 +37,11 @@ export default async function handler(req: any, res: any) {
       headers: {
         Authorization: `Bearer ${openRouterKey}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": process.env.APP_URL || "https://ai.studio/build",
+        "HTTP-Referer": process.env.APP_URL || DEFAULT_APP_URL,
         "X-Title": "Roundtable AI Pro",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.0-flash-lite-preview-02-05:free",
+        model: process.env.OPENROUTER_MODEL || OPENROUTER_MODEL,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: input },

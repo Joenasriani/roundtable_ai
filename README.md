@@ -29,6 +29,7 @@ See `.env.example`.
 - `GEMINI_API_KEY` (optional): client-side Gemini fallback key.
 - `VITE_PAYPAL_CLIENT_ID` (optional): PayPal client ID. Defaults to sandbox (`sb`) if not set.
 - `APEX_INNOVATE_API` or `OPENROUTER_API_KEY` (optional): enables server-side `/api/analyze` proxy.
+- `OPENROUTER_MODEL` (optional): override the default OpenRouter model used by `/api/analyze`.
 - `APP_URL` (optional): used in OpenRouter referer header.
 
 ## Build & checks
