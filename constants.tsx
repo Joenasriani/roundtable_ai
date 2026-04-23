@@ -22,10 +22,10 @@ import { SYSTEM_PROMPT as SHARED_SYSTEM_PROMPT } from './shared-constants';
 export const SYSTEM_PROMPT = SHARED_SYSTEM_PROMPT;
 
 export const EXPERTS = [
-  { field: ExpertField.Physics, icon: <Atom className="w-5 h-5" />, color: 'bg-blue-100 text-blue-700' },
+  { field: ExpertField.Physics, icon: <Atom className="w-5 h-5" />, color: 'bg-indigo-100 text-indigo-700' },
   { field: ExpertField.Biology, icon: <Dna className="w-5 h-5" />, color: 'bg-emerald-100 text-emerald-700' },
   { field: ExpertField.Medicine, icon: <Stethoscope className="w-5 h-5" />, color: 'bg-rose-100 text-rose-700' },
-  { field: ExpertField.Psychology, icon: <Brain className="w-5 h-5" />, color: 'bg-purple-100 text-purple-700' },
+  { field: ExpertField.Psychology, icon: <Brain className="w-5 h-5" />, color: 'bg-indigo-100 text-indigo-700' },
   { field: ExpertField.Psychotherapy, icon: <HeartHandshake className="w-5 h-5" />, color: 'bg-pink-100 text-pink-700' },
   { field: ExpertField.Chemistry, icon: <Beaker className="w-5 h-5" />, color: 'bg-cyan-100 text-cyan-700' },
   { field: ExpertField.Mathematics, icon: <Calculator className="w-5 h-5" />, color: 'bg-amber-100 text-amber-700' },

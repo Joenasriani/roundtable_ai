@@ -20,7 +20,7 @@ const DebateSection: React.FC<Props> = ({ debate }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-6">
           <section>
-            <div className="flex items-center gap-2 mb-3 text-emerald-400">
+            <div className="flex items-center gap-2 mb-3 text-indigo-400">
               <CheckCircle className="w-5 h-5" />
               <h3 className="font-semibold uppercase tracking-wider text-sm">Cross-Disciplinary Agreements</h3>
             </div>
@@ -35,7 +35,7 @@ const DebateSection: React.FC<Props> = ({ debate }) => {
           </section>
 
           <section>
-            <div className="flex items-center gap-2 mb-3 text-amber-400">
+            <div className="flex items-center gap-2 mb-3 text-indigo-500">
               <AlertTriangle className="w-5 h-5" />
               <h3 className="font-semibold uppercase tracking-wider text-sm">Conflicts & Contradictions</h3>
             </div>
@@ -64,7 +64,7 @@ const DebateSection: React.FC<Props> = ({ debate }) => {
                       <span className="text-slate-500">Risk</span>
                       <div className="flex gap-0.5 mt-1">
                         {[...Array(10)].map((_, i) => (
-                          <div key={i} className={`w-2 h-2 rounded-full ${i < conflict.riskIfIncorrect ? 'bg-amber-400' : 'bg-slate-700'}`} />
+                          <div key={i} className={`w-2 h-2 rounded-full ${i < conflict.riskIfIncorrect ? 'bg-indigo-400' : 'bg-slate-700'}`} />
                         ))}
                       </div>
                     </div>

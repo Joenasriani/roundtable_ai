@@ -3,9 +3,12 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { RoundtableResponse } from "../types";
 import { SYSTEM_PROMPT } from "../shared-constants";
 
-export const generateRoundtableAnalysis = async (userInput: string, customApiKey?: string): Promise<RoundtableResponse> => {
-  // First, try the server-side proxy (which uses OpenRouter if configured)
-  // We only skip this if a custom API key is explicitly provided by the user
+export const generateRoundtableAnalysis = async (
+  userInput: string, 
+  customApiKey?: string, 
+  provider: 'gemini' | 'openrouter' = 'gemini'
+): Promise<RoundtableResponse> => {
+  // If no custom key, try the server-side proxy
   if (!customApiKey) {
     try {
       const serverResponse = await fetch("/api/analyze", {
@@ -18,11 +21,34 @@ export const generateRoundtableAnalysis = async (userInput: string, customApiKey
         return await serverResponse.json();
       }
     } catch (e) {
-      console.warn("Server-side analysis unavailable, falling back to client-side Gemini...", e);
+      console.warn("Server-side analysis unavailable, falling back to client-side logic...", e);
     }
   }
 
-  // Fallback to client-side Gemini (or use custom key)
+  // Handle OpenRouter custom key
+  if (provider === 'openrouter' && customApiKey) {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${customApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.0-flash-lite-preview-02-05:free",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: userInput }
+        ],
+        response_format: { type: "json_object" }
+      })
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error?.message || "OpenRouter call failed");
+    return JSON.parse(data.choices[0].message.content) as RoundtableResponse;
+  }
+
+  // Fallback to client-side Gemini (standard behavior)
   const models = ['gemini-2.0-flash-exp', 'gemini-2.0-flash-lite-preview-02-05', 'gemini-1.5-flash'];
   let lastError: any = null;
 

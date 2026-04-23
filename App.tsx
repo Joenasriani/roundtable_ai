@@ -2,14 +2,16 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { generateRoundtableAnalysis } from './services/geminiService';
 import { generateProfessionalPDF, ExportOptions } from './services/pdfService';
+import { SAMPLE_PREMIUM_RESULT } from './mock-data';
 import { RoundtableResponse } from './types';
 import ExpertPanel from './components/ExpertPanel';
 import DebateSection from './components/DebateSection';
 import VerdictSection from './components/VerdictSection';
 import AnalysisChart from './components/AnalysisChart';
 // Added ShieldAlert to the imports
-import { Send, Loader2, BookOpen, AlertCircle, RefreshCw, ShieldAlert, Key, CreditCard, Lock, CheckCircle2, Zap, Shield, Globe, MessageSquare, Award, ChevronDown, Settings, X, ExternalLink, FileText, CheckSquare, Download } from 'lucide-react';
+import { Send, Loader2, BookOpen, AlertCircle, RefreshCw, ShieldAlert, Key, CreditCard, Lock, CheckCircle2, Zap, Shield, Globe, MessageSquare, Award, ChevronDown, Settings, X, ExternalLink, FileText, CheckSquare, Download, Users, BarChart3, Scale } from 'lucide-react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { motion, AnimatePresence } from 'motion/react';
 
 const FeatureCard = ({ icon: Icon, title, description }: { icon: any, title: string, description: string }) => (
   <div className="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
@@ -88,6 +90,87 @@ const FAQItem = ({ question, answer }: { question: string, answer: string }) => 
           {answer}
         </div>
       )}
+    </div>
+  );
+};
+
+const ExpertSkeleton = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 opacity-40">
+    {[...Array(14)].map((_, i) => (
+      <div key={i} className="p-6 bg-white rounded-3xl border border-slate-100 shadow-sm animate-pulse">
+        <div className="w-12 h-12 bg-slate-100 rounded-xl mb-4" />
+        <div className="h-4 bg-slate-100 rounded w-1/3 mb-4" />
+        <div className="h-2 bg-slate-100 rounded w-full mb-2" />
+        <div className="h-2 bg-slate-100 rounded w-2/3" />
+      </div>
+    ))}
+  </div>
+);
+
+const SteppedLoading = () => {
+  const [step, setStep] = useState(0);
+  const steps = [
+    { title: "Panel Assembly", desc: "Summoning 14 interdisciplinary specialists...", icon: Users, color: "text-indigo-500", bg: "bg-indigo-50" },
+    { title: "Domain Analysis", desc: "Executing deep reasoning across non-overlapping fields...", icon: Zap, color: "text-indigo-500", bg: "bg-indigo-50" },
+    { title: "Strategic Debate", desc: "Simulating intellectual friction and synthesis...", icon: BarChart3, color: "text-indigo-500", bg: "bg-indigo-50" },
+    { title: "Final Verdict", desc: "Constructing multi-layer ethical & economic conclusion...", icon: Scale, color: "text-indigo-500", bg: "bg-indigo-50" }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStep(prev => (prev < steps.length - 1 ? prev + 1 : prev));
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [steps.length]);
+
+  return (
+    <div className="max-w-4xl mx-auto mt-16 space-y-12">
+      <div className="text-center space-y-6">
+        <div className="relative inline-block">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 1.2, opacity: 0 }}
+              className={`w-20 h-20 ${steps[step].bg} rounded-3xl flex items-center justify-center relative z-10 shadow-xl border border-white`}
+            >
+              <div className="absolute inset-0 bg-current opacity-10 animate-ping rounded-3xl" style={{ color: steps[step].color.replace('text-', '') }} />
+              {React.createElement(steps[step].icon, { className: `w-10 h-10 ${steps[step].color}` })}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        <div className="space-y-2">
+          <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{steps[step].title}</h3>
+          <p className="text-slate-500 text-sm max-w-sm mx-auto font-medium">
+            {steps[step].desc}
+          </p>
+        </div>
+
+        <div className="flex justify-center gap-3">
+          {steps.map((_, i) => (
+            <div 
+              key={i} 
+              className={`h-1.5 rounded-full transition-all duration-700 ${
+                i <= step ? 'w-8 bg-indigo-600' : 'w-2 bg-slate-200'
+              }`} 
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="relative">
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-t from-slate-50 to-transparent z-10 pointer-events-none" />
+        <ExpertSkeleton />
+      </div>
+
+      <div className="text-center">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-slate-100 shadow-sm">
+          <Loader2 className="w-4 h-4 text-indigo-500 animate-spin" />
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Processing Intelligence Layers</span>
+        </div>
+      </div>
     </div>
   );
 };
@@ -201,9 +284,10 @@ const PDFExportModal = ({
   );
 };
 
-const isValidGeminiKey = (key: string) => {
-  if (!key) return true; // Don't show error for empty
-  return /^AIzaSy[A-Za-z0-9_-]{33}$/.test(key);
+const isValidApiKey = (key: string, provider: 'gemini' | 'openrouter') => {
+  if (!key) return true;
+  if (provider === 'gemini') return /^AIzaSy[A-Za-z0-9_-]{33}$/.test(key);
+  return key.startsWith('sk-or-');
 };
 
 declare global {
@@ -219,6 +303,7 @@ const App: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<RoundtableResponse | null>(null);
+  const [isSample, setIsSample] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasKey, setHasKey] = useState<boolean | null>(null);
   const [isPaid, setIsPaid] = useState<boolean>((() => {
@@ -228,6 +313,8 @@ const App: React.FC = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBtn, setShowInstallBtn] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [isFreeMode, setIsFreeMode] = useState(false);
+  const [customProvider, setCustomProvider] = useState<'gemini' | 'openrouter'>(() => (localStorage.getItem('roundtable_custom_provider') as any) || 'gemini');
   const [exportOptions, setExportOptions] = useState<ExportOptions>({
     selectedExperts: [],
     includeDebate: true,
@@ -314,35 +401,65 @@ const App: React.FC = () => {
 
   const handlePayPalSuccess = () => {
     setIsPaid(true);
+    setIsFreeMode(false);
     sessionStorage.setItem('roundtable_paid', 'true');
     setError(null);
+  };
+
+  const handleShowSample = () => {
+    setResult(SAMPLE_PREMIUM_RESULT);
+    setIsSample(true);
+    setInput("The integration of Artificial Intelligence in global healthcare infrastructure.");
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      document.getElementById('analysis-results')?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
+
+  const handleCloseSample = () => {
+    setResult(null);
+    setIsSample(false);
+    setInput("");
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleAnalyze = useCallback(async () => {
     if (!input.trim() || isLoading) return;
     
-    // Only enforce payment if NOT using a custom key
-    if (!isPaid && !useCustomKey) {
+    // Only enforce payment if NOT using a custom key AND NOT in free mode
+    if (!isPaid && !useCustomKey && !isFreeMode) {
       setError("Please unlock the full reasoning engine or connect your own API key to perform an analysis.");
+      handlePay(); // Scroll to pricing
       return;
     }
 
-    if (useCustomKey && !isValidGeminiKey(customKey)) {
-      setError("The provided Gemini API key is in an incorrect format. Please verify it in settings.");
+    if (useCustomKey && !isValidApiKey(customKey, customProvider)) {
+      setError(`The provided ${customProvider === 'gemini' ? 'Gemini' : 'OpenRouter'} API key is in an incorrect format. Please verify it in settings.`);
       setShowSettings(true);
       return;
     }
 
     setIsLoading(true);
     setError(null);
+    setResult(null);
+    setIsSample(false);
+
     try {
-      const analysis = await generateRoundtableAnalysis(input, useCustomKey ? customKey : undefined);
-      setResult(analysis);
+      const provider = useCustomKey ? customProvider : 'gemini';
+      const key = useCustomKey ? customKey : undefined;
+
+      const data = await generateRoundtableAnalysis(input, key, provider);
+      setResult(data);
       
       // Consume the paid session after one successful analysis
       if (isPaid && !useCustomKey) {
         setIsPaid(false);
         sessionStorage.removeItem('roundtable_paid');
+      }
+
+      // Reset free mode after one use
+      if (isFreeMode && !isPaid) {
+        setIsFreeMode(false);
       }
     } catch (err: any) {
       const errMsg = err instanceof Error ? err.message : String(err);
@@ -372,8 +489,8 @@ const App: React.FC = () => {
               <span className="font-extrabold text-slate-900 text-2xl tracking-tighter">Roundtable AI</span>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
-              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full text-[10px] font-bold uppercase tracking-wider">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
                 {useCustomKey ? 'Custom API Mode' : 'Standard Mode'}
               </div>
               <button 
@@ -419,7 +536,7 @@ const App: React.FC = () => {
               </div>
               <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
                 Elite Interdisciplinary <br />
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">Reasoning Engine</span>
+                <span className="text-indigo-600">Reasoning Engine</span>
               </h1>
               <p className="text-xl text-slate-600 mb-10 leading-relaxed max-w-3xl mx-auto">
                 Submit complex problems to a closed-room roundtable of 14 elite academic experts. 
@@ -439,6 +556,13 @@ const App: React.FC = () => {
                 >
                   Access Tiers
                 </button>
+                <button 
+                  onClick={handleShowSample}
+                  className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold text-lg hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 group shadow-xl shadow-indigo-100"
+                >
+                  <BookOpen className="w-5 h-5 text-indigo-200 group-hover:scale-110 transition-transform" />
+                  View Premium Sample
+                </button>
               </div>
 
               {/* Intelligence Layer Selection Description */}
@@ -446,16 +570,21 @@ const App: React.FC = () => {
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-slate-600 text-[13px] font-medium leading-relaxed">
                   <div className="flex items-center gap-2 group">
                     <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                      <Key className="w-4 h-4 text-violet-600" />
+                      <Key className="w-4 h-4 text-indigo-600" />
                     </div>
-                    <span><strong className="text-slate-900 font-bold">BYO Key:</strong> Connect your private API for free access</span>
+                    <span><strong className="text-slate-900 font-bold">BYO Key:</strong> Gemini/OpenRouter keys accepted</span>
                   </div>
                   <div className="hidden sm:block w-px h-6 bg-slate-200" />
-                  <div className="flex items-center gap-2 group">
-                    <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center shadow-md">
+                  <div className={`flex items-center gap-2 group transition-all ${isFreeMode ? 'scale-105' : ''}`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md ${isFreeMode ? 'bg-indigo-500' : 'bg-indigo-600'}`}>
                       <div className="w-3 h-3 rounded-full bg-white" />
                     </div>
-                    <span><strong className="text-indigo-600 font-bold">Elite Managed:</strong> Use our curated core of 14 academic experts</span>
+                    <span>
+                      <strong className={`${isFreeMode ? 'text-indigo-600' : 'text-indigo-600'} font-bold`}>
+                        {isFreeMode ? 'Free Analysis Active' : 'Elite Managed:'}
+                      </strong> 
+                      {isFreeMode ? ' Using OpenRouter Free' : ' Optimized academic ensemble'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -537,20 +666,24 @@ const App: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 <PricingCard 
-                  title="Private API (BYO)" 
+                  title="Community (Free)" 
                   price="Free" 
                   features={[
-                    "Connect your own Gemini key",
-                    "Unrestricted usage volume",
-                    "Zero session fees",
-                    "Privacy & key sovereignty",
-                    "Direct-to-model latency"
+                    "Access via OpenRouter Free",
+                    "Limited context window",
+                    "Crowdsourced reasoning",
+                    "Ad-supported analysis",
+                    "Community support tier"
                   ]}
-                  onAction={() => document.getElementById('input-section')?.scrollIntoView({ behavior: 'smooth' })}
+                  onAction={() => {
+                    setIsFreeMode(true);
+                    setError(null);
+                    document.getElementById('input-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
                 />
                 <PricingCard 
                   title="Elite Roundtable" 
-                  price="$2.99" 
+                  price="$1.00" 
                   isPro={true}
                   features={[
                     "Full 14-expert panel",
@@ -571,7 +704,7 @@ const App: React.FC = () => {
                           purchase_units: [{
                             amount: {
                               currency_code: "USD",
-                              value: "2.99",
+                              value: "1.00",
                             },
                             payee: {
                               email_address: "joenasr@gmail.com"
@@ -589,6 +722,13 @@ const App: React.FC = () => {
                         return Promise.resolve();
                       }}
                     />
+                    <button 
+                      onClick={handleShowSample}
+                      className="w-full mt-4 py-2 text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors uppercase tracking-widest flex items-center justify-center gap-2"
+                    >
+                      <BookOpen className="w-3.5 h-3.5" />
+                      Preview a High-Res Report
+                    </button>
                   </div>
                 </PricingCard>
               </div>
@@ -650,28 +790,28 @@ const App: React.FC = () => {
         )}
 
         {/* Results */}
-        {isLoading && (
-          <div className="max-w-4xl mx-auto mt-16 text-center space-y-6">
-            <div className="relative inline-block">
-              <div className="absolute inset-0 bg-indigo-200 blur-2xl opacity-20 animate-pulse" />
-              <Loader2 className="w-12 h-12 text-indigo-600 animate-spin relative z-10" />
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-xl font-semibold text-slate-800">Roundtable in Progress...</h3>
-              <p className="text-slate-500 text-sm max-w-sm mx-auto">
-                Each of the 14 experts is currently evaluating your input independently within their strictly non-overlapping field of expertise.
-              </p>
-            </div>
-            <div className="flex justify-center gap-4">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className={`w-2 h-2 rounded-full bg-indigo-400 animate-bounce`} style={{ animationDelay: `${i * 0.1}s` }} />
-              ))}
-            </div>
-          </div>
-        )}
+        {isLoading && <SteppedLoading />}
 
         {result && !isLoading && (
-          <div className="mt-12 space-y-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div id="analysis-results" className="mt-12 space-y-20 animate-in fade-in slide-in-from-bottom-4 duration-700 relative">
+            {isSample && (
+              <div className="sticky top-24 z-20 mx-auto max-w-xl flex items-center gap-2 mb-10 px-2 lg:px-0">
+                <div className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest text-center shadow-xl border border-white/20 flex items-center justify-center gap-3">
+                  <span className="animate-pulse">✨</span>
+                  PREVIEW: Sample High-Resolution Dossier
+                </div>
+                <button 
+                  onClick={handleCloseSample}
+                  className="p-3 bg-white text-slate-900 rounded-2xl shadow-xl border border-slate-100 hover:bg-slate-50 transition-colors group flex items-center gap-2 pr-5"
+                  title="Close Preview"
+                >
+                  <div className="p-1 bg-slate-100 rounded-lg group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors">
+                    <X className="w-4 h-4" />
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-widest leading-none">Exit</span>
+                </button>
+              </div>
+            )}
             {/* Classification Badges */}
             <div className="flex flex-wrap justify-center gap-2">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] w-full text-center mb-1">Inferred Intent</span>
@@ -693,7 +833,7 @@ const App: React.FC = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-10">
               <button 
                 onClick={() => setShowExportModal(true)}
-                className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-xl shadow-slate-200"
+                className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200"
               >
                 <FileText className="w-5 h-5" />
                 Export Professional Dossier
@@ -760,7 +900,7 @@ const App: React.FC = () => {
                   </div>
                   <div>
                     <div className="font-bold text-slate-900">Elite Managed Roundtable</div>
-                    <div className="text-xs text-slate-500">Deploy our optimized ensemble of 14 specialists. ($2.99/session)</div>
+                    <div className="text-xs text-slate-500">Deploy our optimized ensemble of 14 specialists. ($1.00/session)</div>
                   </div>
                   {!useCustomKey && <CheckCircle2 className="w-5 h-5 text-indigo-600 ml-auto" />}
                 </button>
@@ -771,35 +911,56 @@ const App: React.FC = () => {
                     setUseCustomKey(true);
                     localStorage.setItem('roundtable_use_custom_key', 'true');
                   }}
-                  className={`w-full p-4 rounded-2xl border-2 transition-all text-left flex items-center gap-4 ${useCustomKey ? 'border-violet-600 bg-violet-50/50 shadow-md' : 'border-slate-100 hover:border-slate-200 bg-white'}`}
+                  className={`w-full p-4 rounded-2xl border-2 transition-all text-left flex items-center gap-4 ${useCustomKey ? 'border-indigo-600 bg-indigo-50/50 shadow-md' : 'border-slate-100 hover:border-slate-200 bg-white'}`}
                 >
-                  <div className={`p-2.5 rounded-xl ${useCustomKey ? 'bg-violet-600' : 'bg-slate-100'}`}>
+                  <div className={`p-2.5 rounded-xl ${useCustomKey ? 'bg-indigo-600' : 'bg-slate-100'}`}>
                     <Key className={`w-5 h-5 ${useCustomKey ? 'text-white' : 'text-slate-500'}`} />
                   </div>
                   <div>
                     <div className="font-bold text-slate-900">Private API Integration</div>
                     <div className="text-xs text-slate-500">Use your own secure API key for unrestricted free access.</div>
                   </div>
-                  {useCustomKey && <CheckCircle2 className="w-5 h-5 text-violet-600 ml-auto" />}
+                  {useCustomKey && <CheckCircle2 className="w-5 h-5 text-indigo-600 ml-auto" />}
                 </button>
               </div>
 
               {useCustomKey && (
-                <div className="space-y-4 animate-in slide-in-from-top-4 duration-300">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">API Key</h3>
-                    <a 
-                      href="https://aistudio.google.com/app/apikey" 
-                      target="_blank" 
-                      rel="noreferrer"
-                      className="text-xs text-indigo-600 hover:underline flex items-center gap-1"
+                <div className="space-y-6 animate-in slide-in-from-top-4 duration-300">
+                  <div className="flex bg-slate-100 p-1 rounded-xl">
+                    <button
+                      onClick={() => {
+                        setCustomProvider('gemini');
+                        localStorage.setItem('roundtable_custom_provider', 'gemini');
+                      }}
+                      className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${customProvider === 'gemini' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                     >
-                      Get Key <ExternalLink className="w-3 h-3" />
-                    </a>
+                      Google Gemini
+                    </button>
+                    <button
+                      onClick={() => {
+                        setCustomProvider('openrouter');
+                        localStorage.setItem('roundtable_custom_provider', 'openrouter');
+                      }}
+                      className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${customProvider === 'openrouter' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                    >
+                      OpenRouter
+                    </button>
                   </div>
-                  
+
                   <div className="space-y-4">
-                    <div className="relative">
+                    <div className="flex items-center justify-between px-1">
+                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{customProvider === 'gemini' ? 'Gemini API Key' : 'OpenRouter API Key'}</h3>
+                      <a 
+                        href={customProvider === 'gemini' ? "https://aistudio.google.com/app/apikey" : "https://openrouter.ai/keys"} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-[10px] font-bold text-indigo-600 flex items-center gap-1 hover:underline underline-offset-2"
+                      >
+                        Get FREE Key <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                    
+                    <div className="relative group">
                       <input 
                         type="password"
                         value={customKey}
@@ -807,36 +968,33 @@ const App: React.FC = () => {
                           setCustomKey(e.target.value);
                           localStorage.setItem('roundtable_custom_key', e.target.value);
                         }}
-                        placeholder="Paste your Gemini API key here..."
-                        className={`w-full p-4 pr-12 rounded-xl border outline-none transition-all text-sm font-mono ${
-                          customKey && !isValidGeminiKey(customKey) 
-                            ? 'border-rose-300 focus:border-rose-500 bg-rose-50/30' 
-                            : 'border-slate-200 focus:border-violet-600 focus:ring-4 focus:ring-violet-600/10'
+                        placeholder={customProvider === 'gemini' ? "AIzaSy..." : "sk-or-..."}
+                        className={`w-full p-4 pr-12 bg-slate-50 border-2 rounded-2xl outline-none transition-all ${
+                          !customKey ? 'border-slate-100' : (isValidApiKey(customKey, customProvider) ? 'border-indigo-200 focus:border-indigo-500' : 'border-rose-200 focus:border-rose-500')
                         }`}
                       />
-                      {customKey && (
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                          {isValidGeminiKey(customKey) ? (
-                            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                          ) : (
-                            <AlertCircle className="w-5 h-5 text-rose-500" />
-                          )}
-                        </div>
-                      )}
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                        {customKey && (
+                          isValidApiKey(customKey, customProvider) 
+                           ? <CheckCircle2 className="w-5 h-5 text-indigo-500" /> 
+                           : <AlertCircle className="w-5 h-5 text-rose-500" />
+                        )}
+                      </div>
                     </div>
                     
-                    {customKey && !isValidGeminiKey(customKey) && (
-                      <p className="text-xs text-rose-600 font-medium animate-in fade-in slide-in-from-top-1 px-1">
-                        Invalid format. Keys usually start with 'AIzaSy' and are 39 characters long.
+                    {customKey && !isValidApiKey(customKey, customProvider) && (
+                      <p className="text-[11px] text-rose-600 font-medium pl-1 flex items-center gap-1.5 animate-in fade-in">
+                        <AlertCircle className="w-3 h-3" />
+                        Invalid key format for {customProvider}.
                       </p>
                     )}
-                    
-                    {window.aistudio && (
+
+                    {customProvider === 'gemini' && window.aistudio && (
                       <button 
                         onClick={handleSelectKey}
                         className="w-full py-3 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold text-sm hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
                       >
-                        <Shield className="w-4 h-4 text-violet-600" />
+                        <Shield className="w-4 h-4 text-indigo-600" />
                         Connect via AI Studio
                       </button>
                     )}

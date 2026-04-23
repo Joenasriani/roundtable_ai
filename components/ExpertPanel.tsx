@@ -1,91 +1,153 @@
 
 import React, { useState } from 'react';
-import { ExpertAnalysis, ExpertField } from '../types';
+import { ExpertAnalysis } from '../types';
 import { EXPERTS } from '../constants';
 import ClaimBadge from './ClaimBadge';
-import { ChevronDown, ChevronUp, Beaker, Globe } from 'lucide-react';
+import { ChevronDown, ChevronUp, Beaker, Globe, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence, LayoutGroup } from 'motion/react';
 
 interface Props {
   experts: ExpertAnalysis[];
 }
 
 const ExpertPanel: React.FC<Props> = ({ experts }) => {
-  const [expandedField, setExpandedField] = useState<string | null>(experts[0]?.field || null);
+  const [expandedField, setExpandedField] = useState<string | null>(null);
+
+  const springTransition = {
+    type: "spring",
+    stiffness: 300,
+    damping: 30,
+    mass: 1
+  };
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <div className="p-2 bg-indigo-600 rounded-lg text-white">
-            <Beaker className="w-5 h-5" />
+    <div className="space-y-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-200">
+            <Beaker className="w-6 h-6" />
           </div>
-          <h2 className="text-xl font-bold text-slate-800">Phase 1: Independent Expert Analysis</h2>
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Phase 1: Expert Synthesis</h2>
+            <p className="text-sm text-slate-500 font-medium">Independent deep-dives from 14 academic specialists.</p>
+          </div>
         </div>
-        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full text-[10px] font-bold uppercase tracking-wider">
-          <Globe className="w-3 h-3 animate-spin-slow" />
-          Live Web Search Grounding Active
+        <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full text-[11px] font-bold uppercase tracking-wider self-start md:self-center">
+          <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+          Live Search Grounding Active
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {experts.map((analysis) => {
-          const expertConfig = EXPERTS.find(e => e.field === analysis.field);
-          const isExpanded = expandedField === analysis.field;
+      <LayoutGroup>
+        <motion.div 
+          layout
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-min"
+        >
+          {experts.map((analysis) => {
+            const expertConfig = EXPERTS.find(e => e.field === analysis.field);
+            const isExpanded = expandedField === analysis.field;
 
-          return (
-            <div 
-              key={analysis.field} 
-              className={`border rounded-xl bg-white shadow-sm transition-all duration-200 ${isExpanded ? 'ring-2 ring-indigo-500' : 'hover:border-indigo-300'}`}
-            >
-              <button 
-                onClick={() => setExpandedField(isExpanded ? null : analysis.field)}
-                className="w-full flex items-center justify-between p-4 text-left"
+            return (
+              <motion.div 
+                key={analysis.field} 
+                layout
+                transition={springTransition}
+                variants={item}
+                className={`group relative overflow-hidden rounded-3xl border-2 transition-colors duration-300 ${
+                  isExpanded 
+                    ? 'border-indigo-600 bg-white shadow-xl z-20 col-span-full' 
+                    : 'border-slate-100 bg-white hover:border-indigo-200 hover:shadow-md z-10'
+                }`}
               >
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${expertConfig?.color}`}>
-                    {expertConfig?.icon}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-slate-800 leading-tight">{analysis.field}</h3>
-                    <p className="text-xs text-slate-500">Academic Specialist</p>
-                  </div>
-                </div>
-                {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-              </button>
+                {/* Background Accent */}
+                {expertConfig?.color && (
+                  <div className={`absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 opacity-[0.03] rounded-full ${expertConfig.color.split(' ')[0]}`} />
+                )}
 
-              {isExpanded && (
-                <div className="px-4 pb-4 border-t border-slate-50 mt-2 space-y-4 pt-4">
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Technical Analysis</p>
-                    <p className="text-sm text-slate-700 leading-relaxed italic border-l-2 border-slate-200 pl-3">
-                      {analysis.technicalAnalysis}
-                    </p>
+                <motion.button 
+                  layout="position"
+                  transition={springTransition}
+                  onClick={() => setExpandedField(isExpanded ? null : analysis.field)}
+                  className="w-full flex items-center justify-between p-6 text-left"
+                >
+                  <div className="flex items-center gap-4">
+                    <motion.div layout transition={springTransition} className={`p-3 rounded-2xl transition-transform group-hover:scale-110 ${expertConfig?.color}`}>
+                      {expertConfig?.icon}
+                    </motion.div>
+                    <motion.div layout transition={springTransition}>
+                      <h3 className="font-bold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors uppercase text-xs tracking-wider">{analysis.field}</h3>
+                      <p className="text-[10px] font-bold text-slate-400 mt-0.5">ESTABLISHED FIELD</p>
+                    </motion.div>
                   </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Plain-Language Interpretation</p>
-                    <p className="text-sm text-slate-600 leading-relaxed">
-                      {analysis.plainLanguage}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Key Evidence Claims</p>
-                    <ul className="space-y-2">
-                      {analysis.keyClaims.map((claim, idx) => (
-                        <li key={idx} className="bg-slate-50 p-2 rounded border border-slate-100 flex flex-col gap-1">
-                          <p className="text-xs text-slate-700">{claim.text}</p>
-                          <div className="mt-1">
-                            <ClaimBadge label={claim.label} />
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                  <motion.div layout transition={springTransition} className={`p-2 rounded-full transition-colors ${isExpanded ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-400'}`}>
+                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </motion.div>
+                </motion.button>
+
+                <AnimatePresence mode="wait">
+                  {isExpanded && (
+                    <motion.div 
+                      key="content"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="px-6 pb-8 space-y-6 pt-2 border-t border-slate-50"
+                    >
+                      <section>
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Domain Analysis</h4>
+                        <div className="relative">
+                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500 to-transparent rounded-full" />
+                          <p className="text-[13px] text-slate-700 leading-relaxed italic pl-5 font-medium">
+                            "{analysis.technicalAnalysis}"
+                          </p>
+                        </div>
+                      </section>
+
+                      <section>
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Core Interpretation</h4>
+                        <p className="text-sm text-slate-600 leading-relaxed font-normal">
+                          {analysis.plainLanguage}
+                        </p>
+                      </section>
+
+                      <section>
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Evidence Tags</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {analysis.keyClaims.map((claim, idx) => (
+                            <div key={idx} className="bg-slate-50 border border-slate-100 p-3 rounded-2xl flex-1 min-w-[200px]">
+                              <p className="text-xs text-slate-700 leading-snug mb-2 font-medium">{claim.text}</p>
+                              <ClaimBadge label={claim.label} />
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </LayoutGroup>
     </div>
   );
 };

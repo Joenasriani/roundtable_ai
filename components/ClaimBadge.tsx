@@ -8,9 +8,9 @@ interface Props {
 
 const ClaimBadge: React.FC<Props> = ({ label }) => {
   const styles: Record<EvidenceLabel, string> = {
-    'Established Fact': 'bg-blue-100 text-blue-800 border-blue-200',
-    'Strong Evidence': 'bg-emerald-100 text-emerald-800 border-emerald-200',
-    'Theoretical Interpretation': 'bg-amber-100 text-amber-800 border-amber-200',
+    'Established Fact': 'bg-indigo-100 text-indigo-800 border-indigo-200',
+    'Strong Evidence': 'bg-indigo-100 text-indigo-700 border-indigo-200',
+    'Theoretical Interpretation': 'bg-indigo-50 text-indigo-600 border-indigo-100',
   };
 
   return (
