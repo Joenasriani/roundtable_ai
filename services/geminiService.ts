@@ -3,6 +3,37 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { RoundtableResponse } from "../types";
 import { SYSTEM_PROMPT } from "../constants";
 
+const normalizePercentage = (value: number) => {
+  if (!Number.isFinite(value)) return 0;
+  if (value <= 1) return Math.round(value * 100);
+  return Math.max(0, Math.min(100, Math.round(value)));
+};
+
+const normalizeScore = (value: number) => {
+  if (!Number.isFinite(value)) return 0;
+  if (value <= 1) return Number(value.toFixed(2));
+  return Number((value / 100).toFixed(2));
+};
+
+const normalizeRoundtableResponse = (data: RoundtableResponse): RoundtableResponse => {
+  return {
+    ...data,
+    debate: {
+      ...data.debate,
+      conflicts: data.debate.conflicts.map((conflict) => ({
+        ...conflict,
+        evidenceStrength: normalizeScore(conflict.evidenceStrength),
+        realWorldImpact: normalizeScore(conflict.realWorldImpact),
+        riskIfIncorrect: normalizeScore(conflict.riskIfIncorrect),
+      })),
+    },
+    verdict: {
+      ...data.verdict,
+      confidenceLevel: normalizePercentage(data.verdict.confidenceLevel),
+    },
+  };
+};
+
 export const generateRoundtableAnalysis = async (userInput: string, customApiKey?: string): Promise<RoundtableResponse> => {
   // First, try the server-side proxy (which uses OpenRouter if configured)
   // We only skip this if a custom API key is explicitly provided by the user
@@ -15,7 +46,8 @@ export const generateRoundtableAnalysis = async (userInput: string, customApiKey
       });
 
       if (serverResponse.ok) {
-        return await serverResponse.json();
+        const serverData = await serverResponse.json();
+        return normalizeRoundtableResponse(serverData as RoundtableResponse);
       }
     } catch (e) {
       console.warn("Server-side analysis unavailable, falling back to client-side Gemini...", e);
@@ -28,7 +60,10 @@ export const generateRoundtableAnalysis = async (userInput: string, customApiKey
 
   for (const model of models) {
     try {
-      const apiKey = customApiKey || (process.env.GEMINI_API_KEY || (process.env as any).API_KEY);
+      const apiKey = customApiKey || import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error("No API key found. Add VITE_GEMINI_API_KEY, configure ROUNDTABLE_API on the server, or use a custom key.");
+      }
       const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
       const response = await ai.models.generateContent({
@@ -111,7 +146,8 @@ export const generateRoundtableAnalysis = async (userInput: string, customApiKey
       });
 
       const jsonStr = response.text.trim();
-      return JSON.parse(jsonStr) as RoundtableResponse;
+      const parsed = JSON.parse(jsonStr) as RoundtableResponse;
+      return normalizeRoundtableResponse(parsed);
     } catch (error: any) {
       lastError = error;
       console.warn(`Model ${model} failed, trying next...`, error);
