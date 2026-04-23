@@ -1,46 +1,20 @@
-# Roundtable AI
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+</div>
 
-Roundtable AI is a Vite + React application that runs a multi-expert reasoning workflow and renders structured analysis results.
+# Run and deploy your AI Studio app
 
-## Stack
+This contains everything you need to run your app locally.
 
-- Frontend: React 19 + TypeScript + Vite
-- Local API server: Express (`server.ts`)
-- Deployment target: Vercel (static frontend + `/api/analyze` serverless function)
+View your app in AI Studio: https://ai.studio/apps/41c5e787-bbe5-4b4b-a82d-081d3d3412dd
 
-## Local development
+## Run Locally
 
-**Prerequisite:** Node.js 20+
+**Prerequisites:**  Node.js
 
-1. Install dependencies
-   ```bash
-   npm install
-   ```
-2. Copy `.env.example` to `.env.local` and fill values you need.
-3. Start the app (frontend + local API on `http://localhost:3000`)
-   ```bash
-   npm run dev
-   ```
 
-## Environment variables
-
-See `.env.example`.
-
-- `GEMINI_API_KEY` (optional): client-side Gemini fallback key.
-- `VITE_PAYPAL_CLIENT_ID` (optional): PayPal client ID. Defaults to sandbox (`sb`) if not set.
-- `APEX_INNOVATE_API` or `OPENROUTER_API_KEY` (optional): enables server-side `/api/analyze` proxy.
-- `OPENROUTER_MODEL` (optional): override the default OpenRouter model used by `/api/analyze`.
-- `APP_URL` (optional): used in OpenRouter referer header.
-
-## Build & checks
-
-```bash
-npm run lint
-npm run build
-```
-
-## Deploy to Vercel
-
-1. Import the repository in Vercel.
-2. Set the environment variables from `.env.example`.
-3. Deploy (Vercel uses `vercel.json` with Vite output `dist` and the `/api/analyze` function).
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`
