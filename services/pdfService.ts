@@ -3,7 +3,25 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { RoundtableResponse } from '../types';
 
-export const generateProfessionalPDF = (result: RoundtableResponse, originalQuery: string) => {
+export interface ExportOptions {
+  selectedExperts: string[];
+  includeDebate: boolean;
+  includeAgreements: boolean;
+  includeConflicts: boolean;
+  includeVerdict: boolean;
+}
+
+export const generateProfessionalPDF = (
+  result: RoundtableResponse, 
+  originalQuery: string,
+  options: ExportOptions = {
+    selectedExperts: result.experts.map(e => e.field),
+    includeDebate: true,
+    includeAgreements: true,
+    includeConflicts: true,
+    includeVerdict: true
+  }
+) => {
   const doc = new jsPDF();
   const timestamp = new Date().toLocaleString();
 
@@ -42,108 +60,117 @@ export const generateProfessionalPDF = (result: RoundtableResponse, originalQuer
   cursorY += 15;
 
   // Expert Panel Table
-  doc.setTextColor(15, 23, 42); // Slate-900
-  doc.setFontSize(14);
-  doc.text('1. THE INTERDISCIPLINARY PANEL', 20, cursorY);
-  cursorY += 8;
+  const filteredExperts = result.experts.filter(e => options.selectedExperts.includes(e.field));
+  
+  if (filteredExperts.length > 0) {
+    doc.setTextColor(15, 23, 42); // Slate-900
+    doc.setFontSize(14);
+    doc.text('1. THE INTERDISCIPLINARY PANEL', 20, cursorY);
+    cursorY += 8;
 
-  const expertData = result.experts.map(e => [
-    e.field.toUpperCase(),
-    e.technicalAnalysis,
-    e.keyClaims.map(c => `• ${c.text} [${c.label}]`).join('\n')
-  ]);
+    const expertData = filteredExperts.map(e => [
+      e.field.toUpperCase(),
+      e.technicalAnalysis,
+      e.keyClaims.map(c => `• ${c.text} [${c.label}]`).join('\n')
+    ]);
 
-  autoTable(doc, {
-    startY: cursorY,
-    head: [['ACADEMIC FIELD', 'STRATEGIC ANALYSIS', 'KEY CLAIMS & EVIDENCE']],
-    body: expertData,
-    headStyles: { fillColor: [79, 70, 229], textColor: [255, 255, 255], fontStyle: 'bold' },
-    styles: { fontSize: 8, cellPadding: 5 },
-    columnStyles: {
-      0: { cellWidth: 35, fontStyle: 'bold' },
-      1: { cellWidth: 80 },
-      2: { cellWidth: 55 }
-    },
-    margin: { left: 20, right: 20 }
-  });
+    autoTable(doc, {
+      startY: cursorY,
+      head: [['ACADEMIC FIELD', 'STRATEGIC ANALYSIS', 'KEY CLAIMS & EVIDENCE']],
+      body: expertData,
+      headStyles: { fillColor: [79, 70, 229], textColor: [255, 255, 255], fontStyle: 'bold' },
+      styles: { fontSize: 8, cellPadding: 5 },
+      columnStyles: {
+        0: { cellWidth: 35, fontStyle: 'bold' },
+        1: { cellWidth: 80 },
+        2: { cellWidth: 55 }
+      },
+      margin: { left: 20, right: 20 }
+    });
+    cursorY = (doc as any).lastAutoTable.finalY + 20;
+  }
 
   // Debate & Conflict
-  cursorY = (doc as any).lastAutoTable.finalY + 20;
+  if (options.includeDebate && (options.includeAgreements || options.includeConflicts)) {
+    if (cursorY > 230) {
+      doc.addPage();
+      cursorY = 30;
+    }
 
-  if (cursorY > 230) {
-    doc.addPage();
-    cursorY = 30;
+    doc.setFontSize(14);
+    doc.text('2. THE ROUNDTABLE DEBATE', 20, cursorY);
+    cursorY += 10;
+
+    // Agreements
+    if (options.includeAgreements && result.debate.agreements.length > 0) {
+      doc.setFontSize(10);
+      doc.setTextColor(79, 70, 229);
+      doc.text('CONSENSUS AGREEEMENTS:', 20, cursorY);
+      cursorY += 6;
+      doc.setTextColor(30, 41, 59);
+      result.debate.agreements.forEach(agreement => {
+        const splitText = doc.splitTextToSize(`• ${agreement}`, 170);
+        doc.text(splitText, 20, cursorY);
+        cursorY += (splitText.length * 5) + 2;
+      });
+      cursorY += 8;
+    }
+
+    // Conflicts Table
+    if (options.includeConflicts && result.debate.conflicts.length > 0) {
+      doc.setFontSize(10);
+      doc.setTextColor(225, 29, 72); // Rose-600
+      doc.text('SYNTHESIS CONFLICTS:', 20, cursorY);
+      cursorY += 6;
+
+      const conflictData = result.debate.conflicts.map(c => [
+        c.description,
+        `${(c.evidenceStrength * 100).toFixed(0)}%`,
+        `${(c.realWorldImpact * 100).toFixed(0)}%`,
+        `${(c.riskIfIncorrect * 100).toFixed(0)}%`
+      ]);
+
+      autoTable(doc, {
+        startY: cursorY,
+        head: [['CONFLICT DESCRIPTION', 'EVIDENCE', 'IMPACT', 'RISK']],
+        body: conflictData,
+        headStyles: { fillColor: [225, 29, 72] },
+        styles: { fontSize: 8 },
+        margin: { left: 20, right: 20 }
+      });
+      cursorY = (doc as any).lastAutoTable.finalY + 20;
+    }
   }
-
-  doc.setFontSize(14);
-  doc.text('2. THE ROUNDTABLE DEBATE', 20, cursorY);
-  cursorY += 10;
-
-  // Agreements
-  doc.setFontSize(10);
-  doc.setTextColor(79, 70, 229);
-  doc.text('CONSENSUS AGREEEMENTS:', 20, cursorY);
-  cursorY += 6;
-  doc.setTextColor(30, 41, 59);
-  result.debate.agreements.forEach(agreement => {
-    const splitText = doc.splitTextToSize(`• ${agreement}`, 170);
-    doc.text(splitText, 20, cursorY);
-    cursorY += (splitText.length * 5) + 2;
-  });
-
-  cursorY += 8;
-
-  // Conflicts Table
-  doc.setFontSize(10);
-  doc.setTextColor(225, 29, 72); // Rose-600
-  doc.text('SYNTHESIS CONFLICTS:', 20, cursorY);
-  cursorY += 6;
-
-  const conflictData = result.debate.conflicts.map(c => [
-    c.description,
-    `${(c.evidenceStrength * 100).toFixed(0)}%`,
-    `${(c.realWorldImpact * 100).toFixed(0)}%`,
-    `${(c.riskIfIncorrect * 100).toFixed(0)}%`
-  ]);
-
-  autoTable(doc, {
-    startY: cursorY,
-    head: [['CONFLICT DESCRIPTION', 'EVIDENCE', 'IMPACT', 'RISK']],
-    body: conflictData,
-    headStyles: { fillColor: [225, 29, 72] },
-    styles: { fontSize: 8 },
-    margin: { left: 20, right: 20 }
-  });
 
   // Final Verdict
-  cursorY = (doc as any).lastAutoTable.finalY + 20;
+  if (options.includeVerdict) {
+    if (cursorY > 200) {
+      doc.addPage();
+      cursorY = 30;
+    }
 
-  if (cursorY > 200) {
-    doc.addPage();
-    cursorY = 30;
+    doc.setFillColor(248, 250, 252); // Slate-50
+    doc.rect(20, cursorY, 170, 80, 'F');
+    doc.setDrawColor(226, 232, 240); // Slate-200
+    doc.rect(20, cursorY, 170, 80, 'D');
+
+    cursorY += 12;
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(16);
+    doc.text('3. FINAL MULTI-LAYER VERDICT', 25, cursorY);
+    
+    cursorY += 10;
+    doc.setFontSize(11);
+    doc.text('CORE CONCLUSION:', 25, cursorY);
+    cursorY += 6;
+    doc.setFontSize(10);
+    const coreConclusion = doc.splitTextToSize(result.verdict.coreConclusion, 160);
+    doc.text(coreConclusion, 25, cursorY);
+    
+    cursorY += (coreConclusion.length * 5) + 10;
+    doc.setFontSize(11);
+    doc.text(`CONFIDENCE LEVEL: ${(result.verdict.confidenceLevel * 100).toFixed(0)}%`, 25, cursorY);
   }
-
-  doc.setFillColor(248, 250, 252); // Slate-50
-  doc.rect(20, cursorY, 170, 80, 'F');
-  doc.setDrawColor(226, 232, 240); // Slate-200
-  doc.rect(20, cursorY, 170, 80, 'D');
-
-  cursorY += 12;
-  doc.setTextColor(15, 23, 42);
-  doc.setFontSize(16);
-  doc.text('3. FINAL MULTI-LAYER VERDICT', 25, cursorY);
-  
-  cursorY += 10;
-  doc.setFontSize(11);
-  doc.text('CORE CONCLUSION:', 25, cursorY);
-  cursorY += 6;
-  doc.setFontSize(10);
-  const coreConclusion = doc.splitTextToSize(result.verdict.coreConclusion, 160);
-  doc.text(coreConclusion, 25, cursorY);
-  
-  cursorY += (coreConclusion.length * 5) + 10;
-  doc.setFontSize(11);
-  doc.text(`CONFIDENCE LEVEL: ${(result.verdict.confidenceLevel * 100).toFixed(0)}%`, 25, cursorY);
   
   cursorY += 15;
   doc.setFontSize(8);

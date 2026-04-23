@@ -1,7 +1,7 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 import { RoundtableResponse } from "../types";
-import { SYSTEM_PROMPT } from "../constants";
+import { SYSTEM_PROMPT } from "../shared-constants";
 
 export const generateRoundtableAnalysis = async (userInput: string, customApiKey?: string): Promise<RoundtableResponse> => {
   // First, try the server-side proxy (which uses OpenRouter if configured)

@@ -1,14 +1,14 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { generateRoundtableAnalysis } from './services/geminiService';
-import { generateProfessionalPDF } from './services/pdfService';
+import { generateProfessionalPDF, ExportOptions } from './services/pdfService';
 import { RoundtableResponse } from './types';
 import ExpertPanel from './components/ExpertPanel';
 import DebateSection from './components/DebateSection';
 import VerdictSection from './components/VerdictSection';
 import AnalysisChart from './components/AnalysisChart';
 // Added ShieldAlert to the imports
-import { Send, Loader2, BookOpen, AlertCircle, RefreshCw, ShieldAlert, Key, CreditCard, Lock, CheckCircle2, Zap, Shield, Globe, MessageSquare, Award, ChevronDown, Settings, X, ExternalLink, FileText } from 'lucide-react';
+import { Send, Loader2, BookOpen, AlertCircle, RefreshCw, ShieldAlert, Key, CreditCard, Lock, CheckCircle2, Zap, Shield, Globe, MessageSquare, Award, ChevronDown, Settings, X, ExternalLink, FileText, CheckSquare, Download } from 'lucide-react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 const FeatureCard = ({ icon: Icon, title, description }: { icon: any, title: string, description: string }) => (
@@ -92,6 +92,115 @@ const FAQItem = ({ question, answer }: { question: string, answer: string }) => 
   );
 };
 
+const PDFExportModal = ({ 
+  isOpen, 
+  onClose, 
+  onExport, 
+  result, 
+  options, 
+  setOptions 
+}: { 
+  isOpen: boolean, 
+  onClose: () => void, 
+  onExport: () => void, 
+  result: RoundtableResponse, 
+  options: ExportOptions, 
+  setOptions: React.Dispatch<React.SetStateAction<ExportOptions>> 
+}) => {
+  if (!isOpen) return null;
+
+  const toggleExpert = (field: string) => {
+    setOptions(prev => ({
+      ...prev,
+      selectedExperts: prev.selectedExperts.includes(field)
+        ? prev.selectedExperts.filter(f => f !== field)
+        : [...prev.selectedExperts, field]
+    }));
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-indigo-600" />
+            Customize Export
+          </h2>
+          <button onClick={onClose} className="p-2 text-slate-400 hover:bg-white hover:text-slate-600 rounded-full transition-all">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        <div className="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
+          <section className="space-y-3">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Experts to Include</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {result.experts.map(expert => (
+                <button
+                  key={expert.field}
+                  onClick={() => toggleExpert(expert.field)}
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
+                    options.selectedExperts.includes(expert.field)
+                      ? 'border-indigo-600 bg-indigo-50/50 text-indigo-900'
+                      : 'border-slate-100 bg-white text-slate-600 hover:border-slate-200'
+                  }`}
+                >
+                  <div className={`w-4 h-4 rounded border flex items-center justify-center ${
+                    options.selectedExperts.includes(expert.field) 
+                      ? 'bg-indigo-600 border-indigo-600' 
+                      : 'bg-white border-slate-300'
+                  }`}>
+                    {options.selectedExperts.includes(expert.field) && <CheckSquare className="w-3 h-3 text-white" />}
+                  </div>
+                  <span className="text-sm font-bold">{expert.field}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="space-y-3">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Section Inclusion</h3>
+            <div className="space-y-2">
+              {[
+                { key: 'includeDebate', label: 'Strategic Debate' },
+                { key: 'includeAgreements', label: 'Consensus Agreements' },
+                { key: 'includeConflicts', label: 'Synthesis Conflicts' },
+                { key: 'includeVerdict', label: 'Final Multi-layer Verdict' }
+              ].map(sec => (
+                <label key={sec.key} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer hover:bg-slate-100 transition-colors">
+                  <span className="text-sm font-medium text-slate-700">{sec.label}</span>
+                  <input 
+                    type="checkbox" 
+                    checked={options[sec.key as keyof ExportOptions] as boolean}
+                    onChange={(e) => setOptions(prev => ({ ...prev, [sec.key]: e.target.checked }))}
+                    className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                </label>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onExport}
+            disabled={options.selectedExperts.length === 0}
+            className="flex-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-indigo-200"
+          >
+            Download customized dossier
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const isValidGeminiKey = (key: string) => {
   if (!key) return true; // Don't show error for empty
   return /^AIzaSy[A-Za-z0-9_-]{33}$/.test(key);
@@ -116,6 +225,16 @@ const App: React.FC = () => {
     return sessionStorage.getItem('roundtable_paid') === 'true';
   })());
   const [showSettings, setShowSettings] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstallBtn, setShowInstallBtn] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportOptions, setExportOptions] = useState<ExportOptions>({
+    selectedExperts: [],
+    includeDebate: true,
+    includeAgreements: true,
+    includeConflicts: true,
+    includeVerdict: true
+  });
   const [customKey, setCustomKey] = useState<string>(() => localStorage.getItem('roundtable_custom_key') || '');
   const [useCustomKey, setUseCustomKey] = useState<boolean>(() => localStorage.getItem('roundtable_use_custom_key') === 'true');
 
@@ -140,7 +259,40 @@ const App: React.FC = () => {
       }
     };
     checkKey();
+
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallBtn(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
   }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setShowInstallBtn(false);
+    }
+    setDeferredPrompt(null);
+  };
+
+  useEffect(() => {
+    if (result) {
+      setExportOptions(prev => ({
+        ...prev,
+        selectedExperts: result.experts.map(e => e.field)
+      }));
+
+      // Request notification permission if not yet granted
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    }
+  }, [result]);
 
   const handleSelectKey = async () => {
     if (window.aistudio) {
@@ -231,6 +383,16 @@ const App: React.FC = () => {
               >
                 <Settings className="w-5 h-5" />
               </button>
+              {showInstallBtn && (
+                <button 
+                  onClick={handleInstallClick}
+                  className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-200 transition-colors border border-slate-200"
+                  title="Install App"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  Install
+                </button>
+              )}
               {!isPaid && !useCustomKey && (
                 <button
                   onClick={handlePay}
@@ -247,54 +409,6 @@ const App: React.FC = () => {
     </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        {/* Paywall Banner */}
-        {!isPaid && (
-          <div className="max-w-4xl mx-auto mb-12 p-8 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-3xl text-white shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-8 opacity-10">
-              <Lock className="w-32 h-32" />
-            </div>
-            <div className="relative z-10">
-              <h2 className="text-3xl font-bold mb-4">Unlock the Elite Reasoning Engine</h2>
-              <p className="text-indigo-100 mb-8 max-w-xl text-lg leading-relaxed">
-                The free version provides basic analysis. Unlock the full 14-expert interdisciplinary roundtable for rigorous, production-grade insights and strategic reasoning.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 items-center">
-                <div className="w-full sm:w-auto min-w-[200px]">
-                  <PayPalButtons
-                    style={{ layout: "horizontal", height: 48 }}
-                    createOrder={(data, actions) => {
-                      return actions.order.create({
-                        intent: "CAPTURE",
-                        purchase_units: [{
-                          amount: {
-                            currency_code: "USD",
-                            value: "1.00",
-                          },
-                          payee: {
-                            email_address: "joenasr@gmail.com"
-                          },
-                          description: "Roundtable AI Pro Session Unlock",
-                        }],
-                      });
-                    }}
-                    onApprove={(data, actions) => {
-                      if (actions.order) {
-                        return actions.order.capture().then(() => {
-                          handlePayPalSuccess();
-                        });
-                      }
-                      return Promise.resolve();
-                    }}
-                  />
-                </div>
-                <div className="flex items-center gap-2 text-indigo-200 text-sm font-medium">
-                  <ShieldAlert className="w-5 h-5" />
-                  One-time $1 payment for session access
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
         {/* Intro Section */}
         {!result && !isLoading && (
           <>
@@ -578,7 +692,7 @@ const App: React.FC = () => {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-10">
               <button 
-                onClick={() => generateProfessionalPDF(result, input)}
+                onClick={() => setShowExportModal(true)}
                 className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-xl shadow-slate-200"
               >
                 <FileText className="w-5 h-5" />
@@ -741,6 +855,21 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* PDF Export Customization Modal */}
+      {result && (
+        <PDFExportModal
+          isOpen={showExportModal}
+          onClose={() => setShowExportModal(false)}
+          onExport={() => {
+            generateProfessionalPDF(result, input, exportOptions);
+            setShowExportModal(false);
+          }}
+          result={result}
+          options={exportOptions}
+          setOptions={setExportOptions}
+        />
       )}
     </div>
     </PayPalScriptProvider>
