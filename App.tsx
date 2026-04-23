@@ -1,13 +1,14 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { generateRoundtableAnalysis } from './services/geminiService';
+import { generateProfessionalPDF } from './services/pdfService';
 import { RoundtableResponse } from './types';
 import ExpertPanel from './components/ExpertPanel';
 import DebateSection from './components/DebateSection';
 import VerdictSection from './components/VerdictSection';
 import AnalysisChart from './components/AnalysisChart';
 // Added ShieldAlert to the imports
-import { Send, Loader2, BookOpen, AlertCircle, RefreshCw, ShieldAlert, Key, CreditCard, Lock, CheckCircle2, Zap, Shield, Globe, MessageSquare, Award, ChevronDown, Settings, X, ExternalLink } from 'lucide-react';
+import { Send, Loader2, BookOpen, AlertCircle, RefreshCw, ShieldAlert, Key, CreditCard, Lock, CheckCircle2, Zap, Shield, Globe, MessageSquare, Award, ChevronDown, Settings, X, ExternalLink, FileText } from 'lucide-react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 const FeatureCard = ({ icon: Icon, title, description }: { icon: any, title: string, description: string }) => (
@@ -247,7 +248,7 @@ const App: React.FC = () => {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         {/* Paywall Banner */}
-        {!isPaid && !useCustomKey && (
+        {!isPaid && (
           <div className="max-w-4xl mx-auto mb-12 p-8 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-3xl text-white shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-10">
               <Lock className="w-32 h-32" />
@@ -435,14 +436,14 @@ const App: React.FC = () => {
                 />
                 <PricingCard 
                   title="Elite Roundtable" 
-                  price="$1" 
+                  price="$2.99" 
                   isPro={true}
                   features={[
                     "Full 14-expert panel",
                     "Deep interdisciplinary debate",
+                    "Professional PDF Dossier Export",
                     "Evidence-tagged claims",
                     "Economic & Ethical governance",
-                    "Priority processing",
                     "Confidence level metrics"
                   ]}
                   onAction={() => {}}
@@ -456,7 +457,7 @@ const App: React.FC = () => {
                           purchase_units: [{
                             amount: {
                               currency_code: "USD",
-                              value: "1.00",
+                              value: "2.99",
                             },
                             payee: {
                               email_address: "joenasr@gmail.com"
@@ -519,11 +520,11 @@ const App: React.FC = () => {
                 />
                 <FAQItem 
                   question="Is the payment secure?" 
-                  answer="Yes. Payments are processed by PayPal, and card details never pass through this app's servers." 
+                  answer="Yes, all payments are processed through Stripe, the industry standard for secure online transactions. We never store your credit card information." 
                 />
                 <FAQItem 
                   question="Can I use my own API key?" 
-                  answer="Yes. In Settings, switch to Private API Integration and add your Gemini key to run analyses without paying per session." 
+                  answer="Yes! If you have a Google Cloud API key, you can connect it to use your own quota. Pro features still require a session unlock." 
                 />
                 <FAQItem 
                   question="What kind of problems is this best for?" 
@@ -575,14 +576,22 @@ const App: React.FC = () => {
             
             <VerdictSection verdict={result.verdict} />
 
-            <div className="flex justify-center pt-10">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-10">
+              <button 
+                onClick={() => generateProfessionalPDF(result, input)}
+                className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-xl shadow-slate-200"
+              >
+                <FileText className="w-5 h-5" />
+                Export Professional Dossier
+              </button>
+              
               <button 
                 onClick={() => {
                   setResult(null);
                   setInput('');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 font-medium transition-colors"
+                className="flex items-center gap-2 px-6 py-3 text-slate-500 hover:text-indigo-600 font-medium transition-colors"
               >
                 <RefreshCw className="w-4 h-4" />
                 Start New Analysis
@@ -637,7 +646,7 @@ const App: React.FC = () => {
                   </div>
                   <div>
                     <div className="font-bold text-slate-900">Elite Managed Roundtable</div>
-                    <div className="text-xs text-slate-500">Deploy our optimized ensemble of 14 academic specialists.</div>
+                    <div className="text-xs text-slate-500">Deploy our optimized ensemble of 14 specialists. ($2.99/session)</div>
                   </div>
                   {!useCustomKey && <CheckCircle2 className="w-5 h-5 text-indigo-600 ml-auto" />}
                 </button>

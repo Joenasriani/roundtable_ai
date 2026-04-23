@@ -14,7 +14,7 @@ app.post("/api/analyze", async (req, res) => {
   const { input } = req.body;
   if (!input) return res.status(400).json({ error: "Input is required" });
 
-  const openRouterKey = process.env.ROUNDTABLE_API || process.env.OPENROUTER_API_KEY;
+  const openRouterKey = process.env.APEX_INNOVATE_API || process.env.OPENROUTER_API_KEY;
 
   if (openRouterKey) {
     try {
@@ -24,7 +24,7 @@ app.post("/api/analyze", async (req, res) => {
         headers: {
           "Authorization": `Bearer ${openRouterKey}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": process.env.APP_URL || "https://roundtable-ai.vercel.app",
+          "HTTP-Referer": process.env.APP_URL || "https://ai.studio/build",
           "X-Title": "Roundtable AI Pro",
         },
         body: JSON.stringify({
