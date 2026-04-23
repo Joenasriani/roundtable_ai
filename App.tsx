@@ -247,7 +247,7 @@ const App: React.FC = () => {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         {/* Paywall Banner */}
-        {!isPaid && (
+        {!isPaid && !useCustomKey && (
           <div className="max-w-4xl mx-auto mb-12 p-8 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-3xl text-white shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-10">
               <Lock className="w-32 h-32" />
@@ -519,11 +519,11 @@ const App: React.FC = () => {
                 />
                 <FAQItem 
                   question="Is the payment secure?" 
-                  answer="Yes, all payments are processed through Stripe, the industry standard for secure online transactions. We never store your credit card information." 
+                  answer="Yes. Payments are processed by PayPal, and card details never pass through this app's servers." 
                 />
                 <FAQItem 
                   question="Can I use my own API key?" 
-                  answer="Yes! If you have a Google Cloud API key, you can connect it to use your own quota. Pro features still require a session unlock." 
+                  answer="Yes. In Settings, switch to Private API Integration and add your Gemini key to run analyses without paying per session." 
                 />
                 <FAQItem 
                   question="What kind of problems is this best for?" 

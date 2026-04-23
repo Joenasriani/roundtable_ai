@@ -7,6 +7,11 @@ interface Props {
   debate: Debate;
 }
 
+const dotsFilled = (rawValue: number) => {
+  const normalized = rawValue <= 1 ? rawValue * 10 : rawValue / 10;
+  return Math.max(0, Math.min(10, Math.round(normalized)));
+};
+
 const DebateSection: React.FC<Props> = ({ debate }) => {
   return (
     <div className="bg-slate-900 text-white rounded-2xl p-6 lg:p-8 space-y-8 shadow-xl">
@@ -48,7 +53,7 @@ const DebateSection: React.FC<Props> = ({ debate }) => {
                       <span className="text-slate-500">Evidence</span>
                       <div className="flex gap-0.5 mt-1">
                         {[...Array(10)].map((_, i) => (
-                          <div key={i} className={`w-2 h-2 rounded-full ${i < conflict.evidenceStrength ? 'bg-indigo-400' : 'bg-slate-700'}`} />
+                          <div key={i} className={`w-2 h-2 rounded-full ${i < dotsFilled(conflict.evidenceStrength) ? 'bg-indigo-400' : 'bg-slate-700'}`} />
                         ))}
                       </div>
                     </div>
@@ -56,7 +61,7 @@ const DebateSection: React.FC<Props> = ({ debate }) => {
                       <span className="text-slate-500">Impact</span>
                       <div className="flex gap-0.5 mt-1">
                         {[...Array(10)].map((_, i) => (
-                          <div key={i} className={`w-2 h-2 rounded-full ${i < conflict.realWorldImpact ? 'bg-rose-400' : 'bg-slate-700'}`} />
+                          <div key={i} className={`w-2 h-2 rounded-full ${i < dotsFilled(conflict.realWorldImpact) ? 'bg-rose-400' : 'bg-slate-700'}`} />
                         ))}
                       </div>
                     </div>
@@ -64,7 +69,7 @@ const DebateSection: React.FC<Props> = ({ debate }) => {
                       <span className="text-slate-500">Risk</span>
                       <div className="flex gap-0.5 mt-1">
                         {[...Array(10)].map((_, i) => (
-                          <div key={i} className={`w-2 h-2 rounded-full ${i < conflict.riskIfIncorrect ? 'bg-amber-400' : 'bg-slate-700'}`} />
+                          <div key={i} className={`w-2 h-2 rounded-full ${i < dotsFilled(conflict.riskIfIncorrect) ? 'bg-amber-400' : 'bg-slate-700'}`} />
                         ))}
                       </div>
                     </div>
