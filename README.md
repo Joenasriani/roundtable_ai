@@ -15,6 +15,10 @@ View your app in AI Studio: https://ai.studio/apps/41c5e787-bbe5-4b4b-a82d-081d3
 
 1. Install dependencies:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+2. Copy `.env.example` to `.env.local` and set required values:
+   - `OPENROUTER_API_KEY`
+   - `OPENROUTER_DEFAULT_MODEL`
+   - `OPENROUTER_FALLBACK_MODEL`
+   - `VITE_PAYPAL_CLIENT_ID` (for paid checkout)
 3. Run the app:
    `npm run dev`
