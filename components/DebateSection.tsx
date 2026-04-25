@@ -48,7 +48,7 @@ const DebateSection: React.FC<Props> = ({ debate }) => {
                       <span className="text-slate-500">Evidence</span>
                       <div className="flex gap-0.5 mt-1">
                         {[...Array(10)].map((_, i) => (
-                          <div key={i} className={`w-2 h-2 rounded-full ${i < conflict.evidenceStrength ? 'bg-indigo-400' : 'bg-slate-700'}`} />
+                          <div key={i} className={`w-2 h-2 rounded-full ${i < Math.round(conflict.evidenceStrength * 10) ? 'bg-indigo-400' : 'bg-slate-700'}`} />
                         ))}
                       </div>
                     </div>
@@ -56,7 +56,7 @@ const DebateSection: React.FC<Props> = ({ debate }) => {
                       <span className="text-slate-500">Impact</span>
                       <div className="flex gap-0.5 mt-1">
                         {[...Array(10)].map((_, i) => (
-                          <div key={i} className={`w-2 h-2 rounded-full ${i < conflict.realWorldImpact ? 'bg-rose-400' : 'bg-slate-700'}`} />
+                          <div key={i} className={`w-2 h-2 rounded-full ${i < Math.round(conflict.realWorldImpact * 10) ? 'bg-rose-400' : 'bg-slate-700'}`} />
                         ))}
                       </div>
                     </div>
@@ -64,7 +64,7 @@ const DebateSection: React.FC<Props> = ({ debate }) => {
                       <span className="text-slate-500">Risk</span>
                       <div className="flex gap-0.5 mt-1">
                         {[...Array(10)].map((_, i) => (
-                          <div key={i} className={`w-2 h-2 rounded-full ${i < conflict.riskIfIncorrect ? 'bg-indigo-400' : 'bg-slate-700'}`} />
+                          <div key={i} className={`w-2 h-2 rounded-full ${i < Math.round(conflict.riskIfIncorrect * 10) ? 'bg-indigo-400' : 'bg-slate-700'}`} />
                         ))}
                       </div>
                     </div>

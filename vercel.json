@@ -1,5 +1,10 @@
 
 {
+  "functions": {
+    "api/index.ts": {
+      "runtime": "@vercel/node@5.3.24"
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",
@@ -14,7 +19,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api"
+      "destination": "/api/index.ts"
     },
     {
       "source": "/(.*)",
