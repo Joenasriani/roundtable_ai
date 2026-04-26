@@ -8,6 +8,8 @@ export const generateRoundtableAnalysis = async (
   customApiKey?: string, 
   provider: 'gemini' | 'openrouter' = 'gemini'
 ): Promise<RoundtableResponse> => {
+  let serverFailureReason: string | null = null;
+
   // If no custom key, try the server-side proxy
   if (!customApiKey) {
     try {
@@ -20,7 +22,12 @@ export const generateRoundtableAnalysis = async (
       if (serverResponse.ok) {
         return await serverResponse.json();
       }
+
+      const errorPayload = await serverResponse.json().catch(() => null);
+      const serverError = errorPayload?.error || `HTTP ${serverResponse.status}`;
+      serverFailureReason = `Server-side analysis failed (${serverError}).`;
     } catch (e) {
+      serverFailureReason = "Server-side analysis endpoint is unreachable.";
       console.warn("Server-side analysis unavailable, falling back to client-side logic...", e);
     }
   }
@@ -68,6 +75,12 @@ export const generateRoundtableAnalysis = async (
   for (const model of models) {
     try {
       const apiKey = customApiKey || (process.env.GEMINI_API_KEY || (process.env as any).API_KEY);
+      if (!apiKey) {
+        const details = serverFailureReason ? ` ${serverFailureReason}` : "";
+        throw new Error(
+          `No client-side Gemini API key is configured.${details} Configure OPENROUTER_API_KEY on the server (e.g. Vercel env vars) or add your own API key in settings.`
+        );
+      }
       const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
       const response = await ai.models.generateContent({
