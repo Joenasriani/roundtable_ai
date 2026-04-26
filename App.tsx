@@ -538,9 +538,8 @@ const App: React.FC = () => {
                 Elite Interdisciplinary <br />
                 <span className="text-indigo-600">Reasoning Engine</span>
               </h1>
-              <p className="text-xl text-slate-600 mb-10 leading-relaxed max-w-3xl mx-auto">
-                Submit complex problems to a closed-room roundtable of 14 elite academic experts. 
-                Get rigorous analysis, interdisciplinary debate, and a definitive structured verdict.
+              <p className="text-xl text-slate-600 mb-10 leading-relaxed max-w-4xl mx-auto">
+                Submit complex problems to a closed-room roundtable of 14 elite academic experts from different fields (Physics, Biology, Medicine, Psychology, Psychotherapy, Chemistry, Mathematics, Computer Science, Robotics, Music Science, Systems Science, Economics, Ethics, and Anthropology). Get rigorous analysis, interdisciplinary debate, and a definitive structured verdict.
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
                 <button 
