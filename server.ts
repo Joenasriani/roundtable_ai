@@ -9,8 +9,7 @@ const PORT = 3000;
 
 app.use(express.json());
 
-// API Routes
-app.post("/api/analyze", async (req, res) => {
+const analyzeHandler = async (req: express.Request, res: express.Response) => {
   const { input } = req.body;
   if (!input) return res.status(400).json({ error: "Input is required" });
   if (input.length > 5000) return res.status(400).json({ error: "Input exceeds maximum length of 5000 characters." });
@@ -61,7 +60,11 @@ app.post("/api/analyze", async (req, res) => {
   } else {
     res.status(404).json({ error: "OpenRouter key not found. No server-side model is configured." });
   }
-});
+};
+
+// API Routes
+app.post("/api/analyze", analyzeHandler);
+app.post("/analyze", analyzeHandler);
 
 // Vite middleware for development
 async function startServer() {
