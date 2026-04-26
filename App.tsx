@@ -1,17 +1,18 @@
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { lazy, Suspense, useState, useCallback, useEffect } from 'react';
 import { generateRoundtableAnalysis } from './services/geminiService';
-import { generateProfessionalPDF, ExportOptions } from './services/pdfService';
+import type { ExportOptions } from './services/pdfService';
 import { SAMPLE_PREMIUM_RESULT } from './mock-data';
 import { RoundtableResponse } from './types';
-import ExpertPanel from './components/ExpertPanel';
-import DebateSection from './components/DebateSection';
-import VerdictSection from './components/VerdictSection';
-import AnalysisChart from './components/AnalysisChart';
 // Added ShieldAlert to the imports
 import { Send, Loader2, BookOpen, AlertCircle, RefreshCw, ShieldAlert, Key, CreditCard, Lock, CheckCircle2, Zap, Shield, Globe, MessageSquare, Award, ChevronDown, Settings, X, ExternalLink, FileText, CheckSquare, Download, Users, BarChart3, Scale } from 'lucide-react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { motion, AnimatePresence } from 'motion/react';
+
+const ExpertPanel = lazy(() => import('./components/ExpertPanel'));
+const DebateSection = lazy(() => import('./components/DebateSection'));
+const VerdictSection = lazy(() => import('./components/VerdictSection'));
+const AnalysisChart = lazy(() => import('./components/AnalysisChart'));
 
 const FeatureCard = ({ icon: Icon, title, description }: { icon: any, title: string, description: string }) => (
   <div className="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
@@ -850,13 +851,13 @@ const App: React.FC = () => {
               ))}
             </div>
 
-            <ExpertPanel experts={result.experts} />
-            
-            <AnalysisChart experts={result.experts} />
+            <Suspense fallback={<ExpertSkeleton />}><ExpertPanel experts={result.experts} /></Suspense>
 
-            <DebateSection debate={result.debate} />
-            
-            <VerdictSection verdict={result.verdict} />
+            <Suspense fallback={<div className="h-72 bg-white rounded-3xl border border-slate-100 animate-pulse" />}><AnalysisChart experts={result.experts} /></Suspense>
+
+            <Suspense fallback={<div className="h-56 bg-white rounded-3xl border border-slate-100 animate-pulse" />}><DebateSection debate={result.debate} /></Suspense>
+
+            <Suspense fallback={<div className="h-56 bg-white rounded-3xl border border-slate-100 animate-pulse" />}><VerdictSection verdict={result.verdict} /></Suspense>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-10">
               <button 
@@ -1048,7 +1049,8 @@ const App: React.FC = () => {
         <PDFExportModal
           isOpen={showExportModal}
           onClose={() => setShowExportModal(false)}
-          onExport={() => {
+          onExport={async () => {
+            const { generateProfessionalPDF } = await import('./services/pdfService');
             generateProfessionalPDF(result, input, exportOptions);
             setShowExportModal(false);
           }}

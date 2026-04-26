@@ -1,16 +1,115 @@
-
-import { GoogleGenAI, Type } from "@google/genai";
 import { RoundtableResponse } from "../types";
 import { SYSTEM_PROMPT } from "../shared-constants";
 
+const GEMINI_RESPONSE_SCHEMA = {
+  type: "OBJECT",
+  properties: {
+    intent: {
+      type: "ARRAY",
+      items: { type: "STRING" },
+      description: "An array of strings representing classified user intent."
+    },
+    experts: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: {
+          field: { type: "STRING" },
+          technicalAnalysis: { type: "STRING" },
+          plainLanguage: { type: "STRING" },
+          keyClaims: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                text: { type: "STRING" },
+                label: { type: "STRING" }
+              },
+              required: ["text", "label"]
+            }
+          }
+        },
+        required: ["field", "technicalAnalysis", "plainLanguage", "keyClaims"]
+      }
+    },
+    debate: {
+      type: "OBJECT",
+      properties: {
+        agreements: { type: "ARRAY", items: { type: "STRING" } },
+        conflicts: {
+          type: "ARRAY",
+          items: {
+            type: "OBJECT",
+            properties: {
+              description: { type: "STRING" },
+              evidenceStrength: { type: "NUMBER" },
+              realWorldImpact: { type: "NUMBER" },
+              riskIfIncorrect: { type: "NUMBER" }
+            },
+            required: ["description", "evidenceStrength", "realWorldImpact", "riskIfIncorrect"]
+          }
+        },
+        resolution: { type: "STRING" },
+        uncertainty: { type: "STRING" }
+      },
+      required: ["agreements", "conflicts", "resolution", "uncertainty"]
+    },
+    verdict: {
+      type: "OBJECT",
+      properties: {
+        coreConclusion: { type: "STRING" },
+        supportingEvidenceSummary: { type: "STRING" },
+        economicFeasibility: { type: "STRING" },
+        ethicalGovernance: { type: "STRING" },
+        risksTradeOffs: { type: "STRING" },
+        confidenceLevel: { type: "NUMBER" },
+        failureConditions: { type: "STRING" }
+      },
+      required: ["coreConclusion", "supportingEvidenceSummary", "economicFeasibility", "ethicalGovernance", "risksTradeOffs", "confidenceLevel", "failureConditions"]
+    }
+  },
+  required: ["intent", "experts", "debate", "verdict"]
+} as const;
+
+const generateGeminiContent = async (model: string, apiKey: string, userInput: string): Promise<RoundtableResponse> => {
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      systemInstruction: {
+        parts: [{ text: SYSTEM_PROMPT }]
+      },
+      contents: [{ role: "user", parts: [{ text: userInput }] }],
+      tools: [{ googleSearch: {} }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: GEMINI_RESPONSE_SCHEMA
+      }
+    })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    const message = data?.error?.message || `Gemini call failed with status ${response.status}`;
+    throw new Error(message);
+  }
+
+  const rawText = data?.candidates?.[0]?.content?.parts?.find((part: { text?: string }) => typeof part.text === "string")?.text;
+  if (!rawText) {
+    throw new Error("Gemini response did not include JSON content.");
+  }
+
+  return JSON.parse(rawText) as RoundtableResponse;
+};
+
 export const generateRoundtableAnalysis = async (
-  userInput: string, 
-  customApiKey?: string, 
-  provider: 'gemini' | 'openrouter' = 'gemini'
+  userInput: string,
+  customApiKey?: string,
+  provider: "gemini" | "openrouter" = "gemini"
 ): Promise<RoundtableResponse> => {
   let serverFailureReason: string | null = null;
 
-  // If no custom key, try the server-side proxy
   if (!customApiKey) {
     try {
       const serverResponse = await fetch("/api/analyze", {
@@ -32,8 +131,7 @@ export const generateRoundtableAnalysis = async (
     }
   }
 
-  // Handle OpenRouter custom key
-  if (provider === 'openrouter' && customApiKey) {
+  if (provider === "openrouter" && customApiKey) {
     const defaultModel = process.env.OPENROUTER_DEFAULT_MODEL || "openrouter/free";
     const fallbackModel = process.env.OPENROUTER_FALLBACK_MODEL || "openrouter/free";
     const modelsToTry = [...new Set([defaultModel, fallbackModel])];
@@ -68,9 +166,8 @@ export const generateRoundtableAnalysis = async (
     throw lastError || new Error("OpenRouter call failed");
   }
 
-  // Fallback to client-side Gemini (standard behavior)
-  const models = ['gemini-2.0-flash-exp', 'gemini-2.0-flash-lite-preview-02-05', 'gemini-1.5-flash'];
-  let lastError: any = null;
+  const models = ["gemini-2.0-flash-exp", "gemini-2.0-flash-lite-preview-02-05", "gemini-1.5-flash"];
+  let lastError: Error | null = null;
 
   for (const model of models) {
     try {
@@ -81,100 +178,17 @@ export const generateRoundtableAnalysis = async (
           `No client-side Gemini API key is configured.${details} Configure OPENROUTER_API_KEY on the server (e.g. Vercel env vars) or add your own API key in settings.`
         );
       }
-      const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
-      const response = await ai.models.generateContent({
-        model: model,
-        contents: [{ role: "user", parts: [{ text: userInput }] }],
-        config: {
-          systemInstruction: SYSTEM_PROMPT,
-          tools: [{ googleSearch: {} }],
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              intent: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING },
-                description: "An array of strings representing the classified user intent (e.g., ['Technical', 'Philosophical'])."
-              },
-              experts: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    field: { type: Type.STRING },
-                    technicalAnalysis: { type: Type.STRING },
-                    plainLanguage: { type: Type.STRING },
-                    keyClaims: {
-                      type: Type.ARRAY,
-                      items: {
-                        type: Type.OBJECT,
-                        properties: {
-                          text: { type: Type.STRING },
-                          label: { type: Type.STRING, description: "Must be 'Established Fact', 'Strong Evidence', or 'Theoretical Interpretation'" }
-                        },
-                        required: ["text", "label"]
-                      }
-                    }
-                  },
-                  required: ["field", "technicalAnalysis", "plainLanguage", "keyClaims"]
-                }
-              },
-              debate: {
-                type: Type.OBJECT,
-                properties: {
-                  agreements: { type: Type.ARRAY, items: { type: Type.STRING } },
-                  conflicts: {
-                    type: Type.ARRAY,
-                    items: {
-                      type: Type.OBJECT,
-                      properties: {
-                        description: { type: Type.STRING },
-                        evidenceStrength: { type: Type.NUMBER },
-                        realWorldImpact: { type: Type.NUMBER },
-                        riskIfIncorrect: { type: Type.NUMBER }
-                      },
-                      required: ["description", "evidenceStrength", "realWorldImpact", "riskIfIncorrect"]
-                    }
-                  },
-                  resolution: { type: Type.STRING },
-                  uncertainty: { type: Type.STRING }
-                },
-                required: ["agreements", "conflicts", "resolution", "uncertainty"]
-              },
-              verdict: {
-                type: Type.OBJECT,
-                properties: {
-                  coreConclusion: { type: Type.STRING },
-                  supportingEvidenceSummary: { type: Type.STRING },
-                  economicFeasibility: { type: Type.STRING },
-                  ethicalGovernance: { type: Type.STRING },
-                  risksTradeOffs: { type: Type.STRING },
-                  confidenceLevel: { type: Type.NUMBER },
-                  failureConditions: { type: Type.STRING }
-                },
-                required: ["coreConclusion", "supportingEvidenceSummary", "economicFeasibility", "ethicalGovernance", "risksTradeOffs", "confidenceLevel", "failureConditions"]
-              }
-            },
-            required: ["intent", "experts", "debate", "verdict"]
-          }
-        }
-      });
-
-      const jsonStr = response.text.trim();
-      return JSON.parse(jsonStr) as RoundtableResponse;
+      return await generateGeminiContent(model, apiKey as string, userInput);
     } catch (error: any) {
-      lastError = error;
+      const errMessage = error?.message || "Gemini call failed";
+      lastError = new Error(errMessage);
       console.warn(`Model ${model} failed, trying next...`, error);
-      // If it's an API key error, we should probably stop and let the user know
-      if (error?.message?.includes('API key not valid')) {
-        throw new Error('API_KEY_INVALID');
+      if (errMessage.includes("API key not valid") || errMessage.includes("API_KEY_INVALID")) {
+        throw new Error("API_KEY_INVALID");
       }
-      continue;
     }
   }
 
-  console.error("All free models failed:", lastError);
   throw new Error(lastError?.message || "All free reasoning models are currently unavailable.");
 };
