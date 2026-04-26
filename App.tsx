@@ -50,7 +50,7 @@ const PricingCard = ({ title, price, features, isPro, onAction, children }: { ti
         onClick={onAction}
         className={`w-full py-4 rounded-xl font-bold transition-all ${isPro ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200' : 'bg-white text-slate-900 border border-slate-200 hover:bg-slate-50'}`}
       >
-        {isPro ? 'Upgrade to Pro' : 'Use Free Version'}
+        {isPro ? 'Upgrade to Elite' : 'Choose Community'}
       </button>
     ) : children}
   </div>
@@ -426,7 +426,7 @@ const App: React.FC = () => {
   const handleAnalyze = useCallback(async () => {
     if (!input.trim() || isLoading) return;
     
-    // Only enforce payment if NOT using a custom key AND NOT in free mode
+    // Only enforce payment if NOT using a custom key AND no paid tier is active
     if (!isPaid && !useCustomKey && !isFreeMode) {
       setError("Please unlock the full reasoning engine or connect your own API key to perform an analysis.");
       handlePay(); // Scroll to pricing
@@ -457,7 +457,7 @@ const App: React.FC = () => {
         sessionStorage.removeItem('roundtable_paid');
       }
 
-      // Reset free mode after one use
+      // Reset community mode after one use
       if (isFreeMode && !isPaid) {
         setIsFreeMode(false);
       }
@@ -465,7 +465,7 @@ const App: React.FC = () => {
       const errMsg = err instanceof Error ? err.message : String(err);
       if (errMsg === 'API_KEY_INVALID' || errMsg.includes('API key not valid')) {
         setHasKey(false);
-        setError('The free API quota might be exhausted or the key is invalid. Please connect a valid Google Cloud API key to continue.');
+        setError('The API quota might be exhausted or the key is invalid. Please connect a valid Google Cloud API key to continue.');
       } else {
         setError(errMsg);
       }
@@ -539,7 +539,8 @@ const App: React.FC = () => {
                 <span className="text-indigo-600">Reasoning Engine</span>
               </h1>
               <p className="text-xl text-slate-600 mb-10 leading-relaxed max-w-4xl mx-auto">
-                Submit complex problems to a closed-room roundtable of 14 elite academic experts from different fields (Physics, Biology, Medicine, Psychology, Psychotherapy, Chemistry, Mathematics, Computer Science, Robotics, Music Science, Systems Science, Economics, Ethics, and Anthropology). Get rigorous analysis, interdisciplinary debate, and a definitive structured verdict.
+                Submit complex problems to a closed-room roundtable of 14 elite academic experts from different fields (
+                <span className="text-purple-700 font-semibold">Physics</span>, <span className="text-purple-700 font-semibold">Biology</span>, <span className="text-purple-700 font-semibold">Medicine</span>, <span className="text-purple-700 font-semibold">Psychology</span>, <span className="text-purple-700 font-semibold">Psychotherapy</span>, <span className="text-purple-700 font-semibold">Chemistry</span>, <span className="text-purple-700 font-semibold">Mathematics</span>, <span className="text-purple-700 font-semibold">Computer Science</span>, <span className="text-purple-700 font-semibold">Robotics</span>, <span className="text-purple-700 font-semibold">Music Science</span>, <span className="text-purple-700 font-semibold">Systems Science</span>, <span className="text-purple-700 font-semibold">Economics</span>, <span className="text-purple-700 font-semibold">Ethics</span>, and <span className="text-purple-700 font-semibold">Anthropology</span>). Get rigorous analysis, interdisciplinary debate, and a definitive structured verdict.
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
                 <button 
@@ -580,9 +581,9 @@ const App: React.FC = () => {
                     </div>
                     <span>
                       <strong className={`${isFreeMode ? 'text-indigo-600' : 'text-indigo-600'} font-bold`}>
-                        {isFreeMode ? 'Free Analysis Active' : 'Elite Managed:'}
+                        {isFreeMode ? 'Community Session Active' : 'Elite Managed:'}
                       </strong> 
-                      {isFreeMode ? ' Using OpenRouter Free' : ' Optimized academic ensemble'}
+                      {isFreeMode ? ' Optimized community analysis' : ' Optimized academic ensemble'}
                     </span>
                   </div>
                 </div>
@@ -665,24 +666,52 @@ const App: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 <PricingCard 
-                  title="Community (Free)" 
-                  price="Free" 
+                  title="Community" 
+                  price="$1.00" 
                   features={[
-                    "Access via OpenRouter Free",
-                    "Limited context window",
-                    "Crowdsourced reasoning",
-                    "Ad-supported analysis",
-                    "Community support tier"
+                    "1 interdisciplinary session",
+                    "Core roundtable analysis",
+                    "Community-tier reasoning depth",
+                    "Session-based unlock"
                   ]}
-                  onAction={() => {
-                    setIsFreeMode(true);
-                    setError(null);
-                    document.getElementById('input-section')?.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                />
+                  onAction={() => {}}
+                >
+                  <div className="mt-4">
+                    <PayPalButtons
+                      style={{ layout: "horizontal", height: 40 }}
+                      createOrder={(data, actions) => {
+                        return actions.order.create({
+                          intent: "CAPTURE",
+                          purchase_units: [{
+                            amount: {
+                              currency_code: "USD",
+                              value: "1.00",
+                            },
+                            payee: {
+                              email_address: "joenasr@gmail.com"
+                            },
+                            description: "Roundtable AI Community Session",
+                          }],
+                        });
+                      }}
+                      onApprove={(data, actions) => {
+                        if (actions.order) {
+                          return actions.order.capture().then(() => {
+                            setIsFreeMode(true);
+                            setIsPaid(false);
+                            sessionStorage.removeItem('roundtable_paid');
+                            setError(null);
+                            document.getElementById('input-section')?.scrollIntoView({ behavior: 'smooth' });
+                          });
+                        }
+                        return Promise.resolve();
+                      }}
+                    />
+                  </div>
+                </PricingCard>
                 <PricingCard 
                   title="Elite Roundtable" 
-                  price="$1.00" 
+                  price="$5.00" 
                   isPro={true}
                   features={[
                     "Full 14-expert panel",
@@ -703,12 +732,12 @@ const App: React.FC = () => {
                           purchase_units: [{
                             amount: {
                               currency_code: "USD",
-                              value: "1.00",
+                              value: "5.00",
                             },
                             payee: {
                               email_address: "joenasr@gmail.com"
                             },
-                            description: "Roundtable AI Pro Session Unlock",
+                            description: "Roundtable AI Elite Session Unlock",
                           }],
                         });
                       }}
@@ -899,7 +928,7 @@ const App: React.FC = () => {
                   </div>
                   <div>
                     <div className="font-bold text-slate-900">Elite Managed Roundtable</div>
-                    <div className="text-xs text-slate-500">Deploy our optimized ensemble of 14 specialists. ($1.00/session)</div>
+                    <div className="text-xs text-slate-500">Deploy our optimized ensemble of 14 specialists. ($5.00/session)</div>
                   </div>
                   {!useCustomKey && <CheckCircle2 className="w-5 h-5 text-indigo-600 ml-auto" />}
                 </button>
@@ -917,7 +946,7 @@ const App: React.FC = () => {
                   </div>
                   <div>
                     <div className="font-bold text-slate-900">Private API Integration</div>
-                    <div className="text-xs text-slate-500">Use your own secure API key for unrestricted free access.</div>
+                    <div className="text-xs text-slate-500">Use your own secure API key for direct provider-billed access.</div>
                   </div>
                   {useCustomKey && <CheckCircle2 className="w-5 h-5 text-indigo-600 ml-auto" />}
                 </button>
@@ -955,7 +984,7 @@ const App: React.FC = () => {
                         rel="noopener noreferrer"
                         className="text-[10px] font-bold text-indigo-600 flex items-center gap-1 hover:underline underline-offset-2"
                       >
-                        Get FREE Key <ExternalLink className="w-3 h-3" />
+                        Get API Key <ExternalLink className="w-3 h-3" />
                       </a>
                     </div>
                     
