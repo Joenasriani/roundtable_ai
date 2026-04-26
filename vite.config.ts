@@ -46,6 +46,28 @@ export default defineConfig(({ mode }) => {
         'process.env.OPENROUTER_DEFAULT_MODEL': JSON.stringify(env.OPENROUTER_DEFAULT_MODEL),
         'process.env.OPENROUTER_FALLBACK_MODEL': JSON.stringify(env.OPENROUTER_FALLBACK_MODEL)
       },
+      build: {
+        rollupOptions: {
+          output: {
+            manualChunks(id) {
+              if (!id.includes('node_modules')) return;
+
+              if (id.includes('recharts') || id.includes('d3-')) return 'charts';
+              if (id.includes('jspdf')) return 'pdf';
+              if (id.includes('@paypal')) return 'payments';
+              if (id.includes('lucide-react')) return 'icons';
+              if (id.includes('motion')) return 'animation';
+
+              const packagePath = id.split('node_modules/')[1];
+              if (!packagePath) return 'vendor';
+
+              const segments = packagePath.split('/');
+              const packageName = segments[0].startsWith('@') ? `${segments[0]}-${segments[1]}` : segments[0];
+              return `vendor-${packageName.replace(/[^a-zA-Z0-9_-]/g, '')}`;
+            }
+          }
+        }
+      },
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),
