@@ -2,14 +2,14 @@ import express from "express";
 import { SYSTEM_PROMPT } from "../shared-constants";
 
 export const config = {
-  runtime: "nodejs20.x",
+  runtime: "nodejs",
 };
 
 const app = express();
 app.use(express.json());
 
-const OPENROUTER_DEFAULT_MODEL = process.env.OPENROUTER_DEFAULT_MODEL || "google/gemini-2.0-flash-lite-preview-02-05:free";
-const OPENROUTER_FALLBACK_MODEL = process.env.OPENROUTER_FALLBACK_MODEL || "google/gemini-2.0-flash-exp:free";
+const OPENROUTER_DEFAULT_MODEL = process.env.OPENROUTER_DEFAULT_MODEL || "openrouter/auto";
+const OPENROUTER_FALLBACK_MODEL = process.env.OPENROUTER_FALLBACK_MODEL || "openrouter/auto";
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
