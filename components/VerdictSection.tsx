@@ -8,8 +8,6 @@ interface Props {
 }
 
 const VerdictSection: React.FC<Props> = ({ verdict }) => {
-  const confidencePercent = Math.round(verdict.confidenceLevel * 100);
-
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2 mb-4">
@@ -70,11 +68,11 @@ const VerdictSection: React.FC<Props> = ({ verdict }) => {
                <div className="relative z-10">
                  <h4 className="text-xs font-bold uppercase tracking-widest opacity-60 mb-1">Expert Confidence Level</h4>
                  <div className="flex items-end gap-2">
-                   <span className="text-5xl font-bold leading-none">{confidencePercent}%</span>
+                   <span className="text-5xl font-bold leading-none">{verdict.confidenceLevel}%</span>
                    <span className="text-xs mb-1 opacity-60 font-mono">Statistical Probability</span>
                  </div>
                  <div className="w-full bg-white/20 h-2 rounded-full mt-4 overflow-hidden">
-                   <div className="bg-indigo-400 h-full transition-all duration-1000" style={{ width: `${confidencePercent}%` }} />
+                   <div className="bg-indigo-400 h-full transition-all duration-1000" style={{ width: `${verdict.confidenceLevel}%` }} />
                  </div>
                </div>
                <Target className="absolute -right-8 -bottom-8 w-32 h-32 opacity-10" />

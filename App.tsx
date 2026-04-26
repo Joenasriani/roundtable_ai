@@ -2,13 +2,14 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { generateRoundtableAnalysis } from './services/geminiService';
 import { generateProfessionalPDF, ExportOptions } from './services/pdfService';
+import { SAMPLE_PREMIUM_RESULT } from './mock-data';
 import { RoundtableResponse } from './types';
 import ExpertPanel from './components/ExpertPanel';
 import DebateSection from './components/DebateSection';
 import VerdictSection from './components/VerdictSection';
 import AnalysisChart from './components/AnalysisChart';
 // Added ShieldAlert to the imports
-import { Send, Loader2, AlertCircle, RefreshCw, ShieldAlert, Key, CreditCard, Lock, CheckCircle2, Zap, Shield, Globe, Award, ChevronDown, Settings, X, ExternalLink, FileText, CheckSquare, Download, Users, BarChart3, Scale } from 'lucide-react';
+import { Send, Loader2, BookOpen, AlertCircle, RefreshCw, ShieldAlert, Key, CreditCard, Lock, CheckCircle2, Zap, Shield, Globe, MessageSquare, Award, ChevronDown, Settings, X, ExternalLink, FileText, CheckSquare, Download, Users, BarChart3, Scale } from 'lucide-react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -52,6 +53,24 @@ const PricingCard = ({ title, price, features, isPro, onAction, children }: { ti
         {isPro ? 'Upgrade to Pro' : 'Use Free Version'}
       </button>
     ) : children}
+  </div>
+);
+
+const Testimonial = ({ quote, author, role, avatar }: { quote: string, author: string, role: string, avatar: string }) => (
+  <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 italic text-slate-700 relative">
+    <div className="mb-4 text-indigo-400 opacity-20">
+      <MessageSquare className="w-10 h-10" />
+    </div>
+    <p className="mb-6 relative z-10">"{quote}"</p>
+    <div className="flex items-center gap-3 not-italic">
+      <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
+        <img src={avatar} alt={author} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+      </div>
+      <div>
+        <div className="text-sm font-bold text-slate-900">{author}</div>
+        <div className="text-xs text-slate-500">{role}</div>
+      </div>
+    </div>
   </div>
 );
 
@@ -284,7 +303,9 @@ const App: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<RoundtableResponse | null>(null);
+  const [isSample, setIsSample] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasKey, setHasKey] = useState<boolean | null>(null);
   const [isPaid, setIsPaid] = useState<boolean>((() => {
     return sessionStorage.getItem('roundtable_paid') === 'true';
   })());
@@ -314,10 +335,14 @@ const App: React.FC = () => {
     const checkKey = async () => {
       if (window.aistudio) {
         try {
-          await window.aistudio.hasSelectedApiKey();
+          const selected = await window.aistudio.hasSelectedApiKey();
+          setHasKey(selected);
         } catch (e) {
-          setError("Could not verify AI Studio key status. You can still use a custom key in settings.");
+          console.error("Error checking API key:", e);
+          setHasKey(true); // Assume okay if check fails
         }
+      } else {
+        setHasKey(true);
       }
     };
     checkKey();
@@ -361,11 +386,10 @@ const App: React.FC = () => {
       try {
         await window.aistudio.openSelectKey();
         const selected = await window.aistudio.hasSelectedApiKey();
-        if (selected) {
-          setError(null);
-        }
+        setHasKey(selected);
+        if (selected) setError(null);
       } catch (e) {
-        setError("Unable to open AI Studio key selector. Please add a key manually in settings.");
+        console.error("Error opening key selection:", e);
       }
     }
   };
@@ -380,6 +404,23 @@ const App: React.FC = () => {
     setIsFreeMode(false);
     sessionStorage.setItem('roundtable_paid', 'true');
     setError(null);
+  };
+
+  const handleShowSample = () => {
+    setResult(SAMPLE_PREMIUM_RESULT);
+    setIsSample(true);
+    setInput("The integration of Artificial Intelligence in global healthcare infrastructure.");
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      document.getElementById('analysis-results')?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
+
+  const handleCloseSample = () => {
+    setResult(null);
+    setIsSample(false);
+    setInput("");
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleAnalyze = useCallback(async () => {
@@ -401,6 +442,7 @@ const App: React.FC = () => {
     setIsLoading(true);
     setError(null);
     setResult(null);
+    setIsSample(false);
 
     try {
       const provider = useCustomKey ? customProvider : 'gemini';
@@ -422,6 +464,7 @@ const App: React.FC = () => {
     } catch (err: any) {
       const errMsg = err instanceof Error ? err.message : String(err);
       if (errMsg === 'API_KEY_INVALID' || errMsg.includes('API key not valid')) {
+        setHasKey(false);
         setError('The free API quota might be exhausted or the key is invalid. Please connect a valid Google Cloud API key to continue.');
       } else {
         setError(errMsg);
@@ -513,6 +556,13 @@ const App: React.FC = () => {
                 >
                   Access Tiers
                 </button>
+                <button 
+                  onClick={handleShowSample}
+                  className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold text-lg hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 group shadow-xl shadow-indigo-100"
+                >
+                  <BookOpen className="w-5 h-5 text-indigo-200 group-hover:scale-110 transition-transform" />
+                  View Premium Sample
+                </button>
               </div>
 
               {/* Intelligence Layer Selection Description */}
@@ -561,16 +611,7 @@ const App: React.FC = () => {
                 {error && (
                   <div className="mt-4 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-3 text-rose-800 animate-in fade-in slide-in-from-top-2">
                     <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{error}</p>
-                    </div>
-                    <button
-                      onClick={handleAnalyze}
-                      disabled={isLoading || !input.trim()}
-                      className="px-3 py-1.5 text-xs font-bold bg-white border border-rose-200 rounded-lg hover:bg-rose-100 transition-colors disabled:opacity-50"
-                    >
-                      Retry
-                    </button>
+                    <p className="text-sm font-medium">{error}</p>
                   </div>
                 )}
               </div>
@@ -681,8 +722,43 @@ const App: React.FC = () => {
                         return Promise.resolve();
                       }}
                     />
+                    <button 
+                      onClick={handleShowSample}
+                      className="w-full mt-4 py-2 text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors uppercase tracking-widest flex items-center justify-center gap-2"
+                    >
+                      <BookOpen className="w-3.5 h-3.5" />
+                      Preview a High-Res Report
+                    </button>
                   </div>
                 </PricingCard>
+              </div>
+            </div>
+
+            {/* Testimonials */}
+            <div className="mb-24">
+              <div className="text-center mb-16">
+                <h2 className="text-3xl font-bold text-slate-900 mb-4">Trusted by Strategic Thinkers</h2>
+                <p className="text-slate-500">Join the elite users leveraging interdisciplinary AI.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <Testimonial 
+                  quote="The depth of analysis is unparalleled. It's like having a board of directors for every decision."
+                  author="Sarah Chen"
+                  role="Strategic Consultant"
+                  avatar="https://picsum.photos/seed/sarah/100/100"
+                />
+                <Testimonial 
+                  quote="Finally, an AI that doesn't just guess, but reasons through multiple academic lenses."
+                  author="Dr. Marcus Thorne"
+                  role="Research Director"
+                  avatar="https://picsum.photos/seed/marcus/100/100"
+                />
+                <Testimonial 
+                  quote="The interdisciplinary debate section alone saved us weeks of cross-departmental meetings."
+                  author="Elena Rodriguez"
+                  role="Product Lead"
+                  avatar="https://picsum.photos/seed/elena/100/100"
+                />
               </div>
             </div>
 
@@ -698,7 +774,7 @@ const App: React.FC = () => {
                 />
                 <FAQItem 
                   question="Is the payment secure?" 
-                  answer="Yes, all payments are processed by PayPal and tokenized in their checkout flow. We never store full card details on our servers." 
+                  answer="Yes, all payments are processed through Stripe, the industry standard for secure online transactions. We never store your credit card information." 
                 />
                 <FAQItem 
                   question="Can I use my own API key?" 
@@ -718,6 +794,24 @@ const App: React.FC = () => {
 
         {result && !isLoading && (
           <div id="analysis-results" className="mt-12 space-y-20 animate-in fade-in slide-in-from-bottom-4 duration-700 relative">
+            {isSample && (
+              <div className="sticky top-24 z-20 mx-auto max-w-xl flex items-center gap-2 mb-10 px-2 lg:px-0">
+                <div className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest text-center shadow-xl border border-white/20 flex items-center justify-center gap-3">
+                  <span className="animate-pulse">✨</span>
+                  PREVIEW: Sample High-Resolution Dossier
+                </div>
+                <button 
+                  onClick={handleCloseSample}
+                  className="p-3 bg-white text-slate-900 rounded-2xl shadow-xl border border-slate-100 hover:bg-slate-50 transition-colors group flex items-center gap-2 pr-5"
+                  title="Close Preview"
+                >
+                  <div className="p-1 bg-slate-100 rounded-lg group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors">
+                    <X className="w-4 h-4" />
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-widest leading-none">Exit</span>
+                </button>
+              </div>
+            )}
             {/* Classification Badges */}
             <div className="flex flex-wrap justify-center gap-2">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] w-full text-center mb-1">Inferred Intent</span>

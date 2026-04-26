@@ -42,9 +42,7 @@ export default defineConfig(({ mode }) => {
       ],
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.OPENROUTER_DEFAULT_MODEL': JSON.stringify(env.OPENROUTER_DEFAULT_MODEL),
-        'process.env.OPENROUTER_FALLBACK_MODEL': JSON.stringify(env.OPENROUTER_FALLBACK_MODEL)
+        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
       },
       resolve: {
         alias: {
