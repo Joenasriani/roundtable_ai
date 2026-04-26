@@ -27,25 +27,38 @@ export const generateRoundtableAnalysis = async (
 
   // Handle OpenRouter custom key
   if (provider === 'openrouter' && customApiKey) {
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${customApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.0-flash-lite-preview-02-05:free",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: userInput }
-        ],
-        response_format: { type: "json_object" }
-      })
-    });
+    const defaultModel = process.env.OPENROUTER_DEFAULT_MODEL || "openrouter/free";
+    const fallbackModel = process.env.OPENROUTER_FALLBACK_MODEL || "openrouter/free";
+    const modelsToTry = [...new Set([defaultModel, fallbackModel])];
 
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || "OpenRouter call failed");
-    return JSON.parse(data.choices[0].message.content) as RoundtableResponse;
+    let lastError: Error | null = null;
+
+    for (const model of modelsToTry) {
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${customApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: userInput }
+          ],
+          response_format: { type: "json_object" }
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        return JSON.parse(data.choices[0].message.content) as RoundtableResponse;
+      }
+
+      lastError = new Error(data.error?.message || `OpenRouter call failed for model ${model}`);
+    }
+
+    throw lastError || new Error("OpenRouter call failed");
   }
 
   // Fallback to client-side Gemini (standard behavior)
