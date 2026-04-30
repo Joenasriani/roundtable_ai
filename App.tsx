@@ -285,9 +285,8 @@ const PDFExportModal = ({
   );
 };
 
-const isValidApiKey = (key: string, provider: 'gemini' | 'openrouter') => {
+const isValidApiKey = (key: string) => {
   if (!key) return true;
-  if (provider === 'gemini') return /^AIzaSy[A-Za-z0-9_-]{33}$/.test(key);
   return key.startsWith('sk-or-');
 };
 
@@ -315,7 +314,7 @@ const App: React.FC = () => {
   const [showInstallBtn, setShowInstallBtn] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [isFreeMode, setIsFreeMode] = useState(false);
-  const [customProvider, setCustomProvider] = useState<'gemini' | 'openrouter'>(() => (localStorage.getItem('roundtable_custom_provider') as any) || 'gemini');
+  const [customProvider, setCustomProvider] = useState<'openrouter'>(() => 'openrouter');
   const [exportOptions, setExportOptions] = useState<ExportOptions>({
     selectedExperts: [],
     includeDebate: true,
@@ -434,8 +433,8 @@ const App: React.FC = () => {
       return;
     }
 
-    if (useCustomKey && !isValidApiKey(customKey, customProvider)) {
-      setError(`The provided ${customProvider === 'gemini' ? 'Gemini' : 'OpenRouter'} API key is in an incorrect format. Please verify it in settings.`);
+    if (useCustomKey && !isValidApiKey(customKey)) {
+      setError('The provided OpenRouter API key is in an incorrect format. Please verify it in settings.');
       setShowSettings(true);
       return;
     }
@@ -446,7 +445,7 @@ const App: React.FC = () => {
     setIsSample(false);
 
     try {
-      const provider = useCustomKey ? customProvider : 'gemini';
+      const provider = 'openrouter';
       const key = useCustomKey ? customKey : undefined;
 
       const data = await generateRoundtableAnalysis(input, key, provider);
@@ -464,9 +463,9 @@ const App: React.FC = () => {
       }
     } catch (err: any) {
       const errMsg = err instanceof Error ? err.message : String(err);
-      if (errMsg === 'API_KEY_INVALID' || errMsg.includes('API key not valid')) {
+      if (errMsg.includes('API key') || errMsg.includes('Unauthorized') || errMsg.includes('Invalid')) {
         setHasKey(false);
-        setError('The API quota might be exhausted or the key is invalid. Please connect a valid Google Cloud API key to continue.');
+        setError('The OpenRouter API key is invalid or quota-limited. Please provide a valid OpenRouter key.');
       } else {
         setError(errMsg);
       }
@@ -573,7 +572,7 @@ const App: React.FC = () => {
                     <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
                       <Key className="w-4 h-4 text-indigo-600" />
                     </div>
-                    <span><strong className="text-slate-900 font-bold">BYO Key:</strong> Gemini/OpenRouter keys accepted</span>
+                    <span><strong className="text-slate-900 font-bold">BYO Key:</strong> OpenRouter key accepted</span>
                   </div>
                   <div className="hidden sm:block w-px h-6 bg-slate-200" />
                   <div className={`flex items-center gap-2 group transition-all ${isFreeMode ? 'scale-105' : ''}`}>
@@ -807,7 +806,7 @@ const App: React.FC = () => {
                 />
                 <FAQItem 
                   question="Can I use my own API key?" 
-                  answer="Yes! If you have a Google Cloud API key, you can connect it to use your own quota. Pro features still require a session unlock." 
+                  answer="Yes. The platform uses OpenRouter only. On the $1 plan, you can bring your own OpenRouter key; on the $5 plan, the server key is used for a managed session." 
                 />
                 <FAQItem 
                   question="What kind of problems is this best for?" 
@@ -955,32 +954,15 @@ const App: React.FC = () => {
 
               {useCustomKey && (
                 <div className="space-y-6 animate-in slide-in-from-top-4 duration-300">
-                  <div className="flex bg-slate-100 p-1 rounded-xl">
-                    <button
-                      onClick={() => {
-                        setCustomProvider('gemini');
-                        localStorage.setItem('roundtable_custom_provider', 'gemini');
-                      }}
-                      className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${customProvider === 'gemini' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                    >
-                      Google Gemini
-                    </button>
-                    <button
-                      onClick={() => {
-                        setCustomProvider('openrouter');
-                        localStorage.setItem('roundtable_custom_provider', 'openrouter');
-                      }}
-                      className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${customProvider === 'openrouter' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                    >
-                      OpenRouter
-                    </button>
+                  <div className="rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700">
+                    Provider: OpenRouter (fixed)
                   </div>
 
                   <div className="space-y-4">
                     <div className="flex items-center justify-between px-1">
-                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{customProvider === 'gemini' ? 'Gemini API Key' : 'OpenRouter API Key'}</h3>
+                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">OpenRouter API Key</h3>
                       <a 
-                        href={customProvider === 'gemini' ? "https://aistudio.google.com/app/apikey" : "https://openrouter.ai/keys"} 
+                        href="https://openrouter.ai/keys" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-[10px] font-bold text-indigo-600 flex items-center gap-1 hover:underline underline-offset-2"
@@ -997,35 +979,25 @@ const App: React.FC = () => {
                           setCustomKey(e.target.value);
                           localStorage.setItem('roundtable_custom_key', e.target.value);
                         }}
-                        placeholder={customProvider === 'gemini' ? "AIzaSy..." : "sk-or-..."}
+                        placeholder="sk-or-..."
                         className={`w-full p-4 pr-12 bg-slate-50 border-2 rounded-2xl outline-none transition-all ${
-                          !customKey ? 'border-slate-100' : (isValidApiKey(customKey, customProvider) ? 'border-indigo-200 focus:border-indigo-500' : 'border-rose-200 focus:border-rose-500')
+                          !customKey ? 'border-slate-100' : (isValidApiKey(customKey) ? 'border-indigo-200 focus:border-indigo-500' : 'border-rose-200 focus:border-rose-500')
                         }`}
                       />
                       <div className="absolute right-4 top-1/2 -translate-y-1/2">
                         {customKey && (
-                          isValidApiKey(customKey, customProvider) 
+                          isValidApiKey(customKey) 
                            ? <CheckCircle2 className="w-5 h-5 text-indigo-500" /> 
                            : <AlertCircle className="w-5 h-5 text-rose-500" />
                         )}
                       </div>
                     </div>
                     
-                    {customKey && !isValidApiKey(customKey, customProvider) && (
+                    {customKey && !isValidApiKey(customKey) && (
                       <p className="text-[11px] text-rose-600 font-medium pl-1 flex items-center gap-1.5 animate-in fade-in">
                         <AlertCircle className="w-3 h-3" />
-                        Invalid key format for {customProvider}.
+                        Invalid key format for OpenRouter.
                       </p>
-                    )}
-
-                    {customProvider === 'gemini' && window.aistudio && (
-                      <button 
-                        onClick={handleSelectKey}
-                        className="w-full py-3 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold text-sm hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
-                      >
-                        <Shield className="w-4 h-4 text-indigo-600" />
-                        Connect via AI Studio
-                      </button>
                     )}
                   </div>
                 </div>

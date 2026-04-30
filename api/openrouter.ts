@@ -10,8 +10,8 @@ const parsePositiveInt = (value: string | undefined, fallback: number): number =
 
 const getOpenRouterConfig = () => {
   const apiKey = process.env.APEX_INNOVATE_API || process.env.OPENROUTER_API_KEY;
-  const defaultModel = process.env.OPENROUTER_DEFAULT_MODEL || process.env.AI_MODEL || process.env.TEXT_MODEL || "openrouter/free";
-  const fallbackModel = process.env.OPENROUTER_FALLBACK_MODEL || process.env.RESEARCH_MODEL || defaultModel;
+  const defaultModel = process.env.OPENROUTER_DEFAULT_MODEL || "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free";
+  const fallbackModel = process.env.OPENROUTER_FALLBACK_MODEL || defaultModel;
   const baseUrl = (process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1").replace(/\/$/, "");
   const timeoutMs = parsePositiveInt(process.env.OPENROUTER_TIMEOUT_MS, 45000);
 
