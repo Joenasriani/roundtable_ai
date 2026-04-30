@@ -2,30 +2,19 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
-import { runOpenRouterAnalysis } from "./api/openrouter";
+import { analyzeHandler, audioHandler, videoHandler, imagesHandler } from "./api/analysisHandler";
 
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
 
-const analyzeHandler = async (req: express.Request, res: express.Response) => {
-  const { input } = req.body;
-  if (!input) return res.status(400).json({ error: "Input is required" });
-  if (input.length > 5000) return res.status(400).json({ error: "Input exceeds maximum length of 5000 characters." });
-
-  try {
-    console.log("Using OpenRouter for analysis...");
-    const result = await runOpenRouterAnalysis(input);
-    res.json(result);
-  } catch (error: any) {
-    console.error("OpenRouter Error:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
 // API Routes
 app.post("/api/analyze", analyzeHandler);
+app.post("/api/text", analyzeHandler);
+app.post("/api/audio", audioHandler);
+app.post("/api/video", videoHandler);
+app.post("/api/images", imagesHandler);
 app.post("/analyze", analyzeHandler);
 
 // Vite middleware for development

@@ -1,23 +1,14 @@
 import express from "express";
-import { runOpenRouterAnalysis } from "./openrouter";
+import { analyzeHandler, audioHandler, videoHandler, imagesHandler } from "./analysisHandler";
 
 const app = express();
 app.use(express.json());
 
-const analyzeHandler = async (req: express.Request, res: express.Response) => {
-  const { input } = req.body;
-  if (!input) return res.status(400).json({ error: "Input is required" });
-  if (input.length > 5000) return res.status(400).json({ error: "Input exceeds maximum length of 5000 characters." });
-
-  try {
-    const result = await runOpenRouterAnalysis(input);
-    res.json(result);
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
 app.post("/api/analyze", analyzeHandler);
+app.post("/api/text", analyzeHandler);
+app.post("/api/audio", audioHandler);
+app.post("/api/video", videoHandler);
+app.post("/api/images", imagesHandler);
 app.post("/analyze", analyzeHandler);
 app.post("/", analyzeHandler);
 
