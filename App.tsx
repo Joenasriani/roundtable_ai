@@ -373,11 +373,6 @@ const App: React.FC = () => {
         ...prev,
         selectedExperts: result.experts.map(e => e.field)
       }));
-
-      // Request notification permission if not yet granted
-      if ('Notification' in window && Notification.permission === 'default') {
-        Notification.requestPermission();
-      }
     }
   }, [result]);
 
@@ -428,7 +423,7 @@ const App: React.FC = () => {
     
     // Only enforce payment if NOT using a custom key AND no paid tier is active
     if (!isPaid && !useCustomKey && !isFreeMode) {
-      setError("Please unlock the full reasoning engine or connect your own API key to perform an analysis.");
+      setError("Choose a plan in PAY to continue: $1 with your own API key, or $5 using our managed NVIDIA API.");
       handlePay(); // Scroll to pricing
       return;
     }
@@ -662,7 +657,7 @@ const App: React.FC = () => {
             <div id="pricing-section" className="mb-24 scroll-mt-24">
               <div className="text-center mb-16">
                 <h2 className="text-3xl font-bold text-slate-900 mb-4">Select Your Intelligence Tier</h2>
-                <p className="text-slate-500">Choose between private infrastructure or our managed expert ensemble.</p>
+                <p className="text-slate-500">Go to PAY to choose: $1 with your own API key, or $5 with our managed NVIDIA API.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 <PricingCard 
@@ -670,8 +665,8 @@ const App: React.FC = () => {
                   price="$1.00" 
                   features={[
                     "1 interdisciplinary session",
-                    "Core roundtable analysis",
-                    "Community-tier reasoning depth",
+                    "Bring your own AI API key",
+                    "Ideal for users with existing provider credits",
                     "Session-based unlock"
                   ]}
                   onAction={() => {}}
@@ -690,7 +685,7 @@ const App: React.FC = () => {
                             payee: {
                               email_address: "joenasr@gmail.com"
                             },
-                            description: "Roundtable AI Community Session",
+                            description: "Roundtable AI BYO API Key Session",
                           }],
                         });
                       }}
@@ -715,6 +710,7 @@ const App: React.FC = () => {
                   isPro={true}
                   features={[
                     "Full 14-expert panel",
+                    "Runs on our managed NVIDIA API",
                     "Deep interdisciplinary debate",
                     "Professional PDF Dossier Export",
                     "Evidence-tagged claims",
