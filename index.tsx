@@ -2,6 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { TrialGate } from './trial-gate';
 import { registerSW } from 'virtual:pwa-register';
 
 // Register PWA service worker
@@ -15,6 +16,8 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <App />
+    <TrialGate>
+      <App />
+    </TrialGate>
   </React.StrictMode>
 );
