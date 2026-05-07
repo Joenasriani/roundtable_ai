@@ -3,6 +3,7 @@ import { SYSTEM_PROMPT } from "../shared-constants";
 
 const OPENROUTER_FREE_MODEL = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free";
 export const PAYMENT_REQUIRED_ERROR = "PAYMENT_REQUIRED";
+const TRIAL_TOKEN_STORAGE_KEY = "roundtable_trial_tokens";
 
 export class PaymentRequiredError extends Error {
   constructor(message = "This analysis requires an active session. Please continue through PayPal.") {
@@ -10,6 +11,18 @@ export class PaymentRequiredError extends Error {
     this.name = PAYMENT_REQUIRED_ERROR;
   }
 }
+
+const consumeTrialCredit = () => {
+  if (typeof window === "undefined") return;
+  if (sessionStorage.getItem("roundtable_paid") === "true") return;
+
+  const current = Number.parseInt(localStorage.getItem(TRIAL_TOKEN_STORAGE_KEY) || "1", 10);
+  if (!Number.isFinite(current) || current <= 0) return;
+
+  const next = Math.max(0, current - 1);
+  localStorage.setItem(TRIAL_TOKEN_STORAGE_KEY, String(next));
+  window.dispatchEvent(new CustomEvent("roundtable-trial-tokens-updated", { detail: { trialTokens: next } }));
+};
 
 const runOpenRouterClientCall = async (model: string, apiKey: string, userInput: string): Promise<RoundtableResponse> => {
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -59,7 +72,9 @@ export const generateRoundtableAnalysis = async (
       });
 
       if (serverResponse.ok) {
-        return await serverResponse.json();
+        const result = await serverResponse.json();
+        consumeTrialCredit();
+        return result;
       }
 
       const errorPayload = await serverResponse.json().catch(() => null) as any;
