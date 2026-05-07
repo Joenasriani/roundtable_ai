@@ -71,7 +71,12 @@ export const createModuleHandler = (moduleName: "text" | "audio" | "video" | "im
       const result = await runOpenRouterAnalysis(input);
       return res.status(200).json(result);
     } catch (error: any) {
-      return res.status(500).json({ error: error?.message || "Analysis failed" });
+      console.error("Analysis failed", error);
+      return res.status(402).json({
+        error: "PAYMENT_REQUIRED",
+        paymentRequired: true,
+        message: "This analysis requires an active session.",
+      });
     }
   };
 };

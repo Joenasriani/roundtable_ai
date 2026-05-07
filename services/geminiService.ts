@@ -2,6 +2,27 @@ import { RoundtableResponse } from "../types";
 import { SYSTEM_PROMPT } from "../shared-constants";
 
 const OPENROUTER_FREE_MODEL = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free";
+export const PAYMENT_REQUIRED_ERROR = "PAYMENT_REQUIRED";
+const TRIAL_TOKEN_STORAGE_KEY = "roundtable_trial_tokens";
+
+export class PaymentRequiredError extends Error {
+  constructor(message = "This analysis requires an active session. Please continue through PayPal.") {
+    super(message);
+    this.name = PAYMENT_REQUIRED_ERROR;
+  }
+}
+
+const consumeTrialCredit = () => {
+  if (typeof window === "undefined") return;
+  if (sessionStorage.getItem("roundtable_paid") === "true") return;
+
+  const current = Number.parseInt(localStorage.getItem(TRIAL_TOKEN_STORAGE_KEY) || "1", 10);
+  if (!Number.isFinite(current) || current <= 0) return;
+
+  const next = Math.max(0, current - 1);
+  localStorage.setItem(TRIAL_TOKEN_STORAGE_KEY, String(next));
+  window.dispatchEvent(new CustomEvent("roundtable-trial-tokens-updated", { detail: { trialTokens: next } }));
+};
 
 const runOpenRouterClientCall = async (model: string, apiKey: string, userInput: string): Promise<RoundtableResponse> => {
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -23,13 +44,13 @@ const runOpenRouterClientCall = async (model: string, apiKey: string, userInput:
   const data = await response.json().catch(() => null) as any;
 
   if (!response.ok) {
-    const message = data?.error?.message || `OpenRouter call failed with status ${response.status}`;
-    throw new Error(message);
+    console.error("Client analysis failed", { status: response.status, message: data?.error?.message });
+    throw new PaymentRequiredError();
   }
 
   const content = data?.choices?.[0]?.message?.content;
   if (!content || typeof content !== "string") {
-    throw new Error("OpenRouter response did not include JSON content.");
+    throw new Error("Analysis failed. Please try again.");
   }
 
   return JSON.parse(content) as RoundtableResponse;
@@ -51,15 +72,23 @@ export const generateRoundtableAnalysis = async (
       });
 
       if (serverResponse.ok) {
-        return await serverResponse.json();
+        const result = await serverResponse.json();
+        consumeTrialCredit();
+        return result;
       }
 
-      const errorPayload = await serverResponse.json().catch(() => null);
-      const serverError = errorPayload?.error || `HTTP ${serverResponse.status}`;
-      serverFailureReason = `Server-side analysis failed (${serverError}).`;
+      const errorPayload = await serverResponse.json().catch(() => null) as any;
+      if (serverResponse.status === 402 || errorPayload?.paymentRequired || errorPayload?.error === PAYMENT_REQUIRED_ERROR) {
+        throw new PaymentRequiredError(errorPayload?.message);
+      }
+
+      serverFailureReason = `Server-side analysis failed (${serverResponse.status}).`;
     } catch (e) {
+      if (e instanceof PaymentRequiredError) {
+        throw e;
+      }
       serverFailureReason = "Server-side analysis endpoint is unreachable.";
-      console.warn("Server-side analysis unavailable, falling back to client-side OpenRouter call...", e);
+      console.warn("Server-side analysis unavailable, falling back to client-side analysis call...", e);
     }
   }
 
@@ -67,8 +96,6 @@ export const generateRoundtableAnalysis = async (
     return runOpenRouterClientCall(OPENROUTER_FREE_MODEL, customApiKey, userInput);
   }
 
-  const details = serverFailureReason ? ` ${serverFailureReason}` : "";
-  throw new Error(
-    `No OpenRouter API key is configured for client fallback.${details} Configure OPENROUTER_API_KEY on the server for the $5 managed session, or add your own OpenRouter API key in settings for the $1 BYO plan.`
-  );
+  console.error("Managed analysis unavailable", serverFailureReason);
+  throw new PaymentRequiredError();
 };
