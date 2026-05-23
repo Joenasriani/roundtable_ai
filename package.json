@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "tsc --noEmit",
-    "vercel-build": "vite build"
+    "vercel-build": "vite build",
+    "qa:audit": "playwright test tests/full-app-audit.spec.ts"
   },
   "dependencies": {
     "@paypal/react-paypal-js": "^9.1.0",
@@ -28,6 +29,7 @@
     "@vitejs/plugin-react": "^5.0.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0",
-    "@types/express": "^5.0.6"
+    "@types/express": "^5.0.6",
+    "@playwright/test": "^1.54.2"
   }
 }
