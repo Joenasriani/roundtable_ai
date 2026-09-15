@@ -1,165 +1,165 @@
 import { RoundtableResponse } from "./types";
 
 export const SAMPLE_PREMIUM_RESULT: RoundtableResponse = {
-  intent: ["Strategic Infrastructure", "Healthcare Ethics", "Automation Policy"],
+  intent: ["Healthcare Operations", "Technology Evaluation", "Governance"],
   experts: [
     {
       field: "Physics",
-      technicalAnalysis: "Energy dissipation in massive compute clusters is approaching the Landauer limit. Sustainable AI requires a transition to reversible computing and photonic interconnects to mitigate thermal entropy.",
-      plainLanguage: "Chips are getting too hot. We need light-based connections to keep the 'brain' cool and efficient.",
+      technicalAnalysis: "Any deployment adds compute, power, cooling, and device constraints. The physical question is not whether the model is intelligent, but whether the required infrastructure remains reliable under real clinical workloads.",
+      plainLanguage: "The system still depends on ordinary hardware, electricity, networking, and heat management.",
       keyClaims: [
-        { text: "Thermal noise limits qubit stability in current-gen hardware.", label: "Established Fact" },
-        { text: "Photonic compute reduces latency by factor of 100.", label: "Strong Evidence" }
+        { text: "Compute hardware consumes electrical power and dissipates heat.", label: "Established Fact" },
+        { text: "Infrastructure limits may affect deployment reliability.", label: "Theoretical Interpretation" }
       ]
     },
     {
       field: "Biology",
-      technicalAnalysis: "Biological intelligence operates at 20W via sparse activation. Artificial models are 'dense' and energetically expensive. Neuromorphic chips must mimic synaptic pruning to survive ecosystem constraints.",
-      plainLanguage: "The human brain is millions of times more efficient than AI. We must copy how it clears 'unused' connections to save power.",
+      technicalAnalysis: "Biological variation means a triage system will encounter patients whose signals do not fit a clean average case. Population diversity and incomplete observations should therefore remain part of evaluation design.",
+      plainLanguage: "Human bodies vary, so a model should not be tested only on neat or typical cases.",
       keyClaims: [
-        { text: "Human brain consumes ~20 Watts for high-level reasoning.", label: "Established Fact" },
-        { text: "Silicon energy density is unsustainable for mobile autonomy.", label: "Strong Evidence" }
+        { text: "Human biological measurements vary across individuals and contexts.", label: "Established Fact" },
+        { text: "Evaluation should include heterogeneous cases.", label: "Theoretical Interpretation" }
       ]
     },
     {
       field: "Medicine",
-      technicalAnalysis: "AI-driven diagnostics reduce false negatives in histopathology by 30%. However, latent class models show high variance in edge cases which requires redundant human-in-the-loop verification.",
-      plainLanguage: "AI is great at spotting diseases early, but it still makes weird mistakes that need a doctor to double-check.",
+      technicalAnalysis: "A triage tool should support rather than silently replace clinical judgment unless its intended use, validation evidence, failure modes, escalation rules, and governance have been established for the target setting.",
+      plainLanguage: "A hospital should know exactly what the model is allowed to do, when staff must override it, and how errors are handled.",
       keyClaims: [
-        { text: "Deep learning exceeds human accuracy in radiological screening.", label: "Established Fact" },
-        { text: "Diagnostic opacity leads to decreased clinical trust.", label: "Strong Evidence" }
+        { text: "Clinical use requires context specific validation and oversight.", label: "Strong Evidence" },
+        { text: "The appropriate level of automation depends on the validated use case.", label: "Theoretical Interpretation" }
       ]
     },
     {
       field: "Psychology",
-      technicalAnalysis: "Human-AI interaction triggers 'parasocial' anchoring. Users tend to overestimate the intentionality of LLMs, leading to cognitive dependency and altered decision-making heuristics.",
-      plainLanguage: "People start trusting AI like a real person, which can make them forget how to think for themselves.",
+      technicalAnalysis: "Staff may over trust or under trust automated recommendations. Interface design should therefore expose uncertainty, preserve meaningful human review, and avoid presenting model output as unquestionable authority.",
+      plainLanguage: "People can trust automation too much or too little, so the interface should make doubt visible.",
       keyClaims: [
-        { text: "The ELIZA effect causes anthropomorphic bias.", label: "Established Fact" },
-        { text: "Extended AI assistance reduces task-switching cognitive load.", label: "Strong Evidence" }
+        { text: "Automation can affect human judgment and reliance behavior.", label: "Strong Evidence" },
+        { text: "Visible uncertainty may help users calibrate reliance.", label: "Theoretical Interpretation" }
       ]
     },
     {
       field: "Psychotherapy",
-      technicalAnalysis: "Emotional mirroring by AI creates a 'therapeutic vacuum'. While useful for exposure therapy, it lacks the 'Biological Empathy' necessary for deep trauma resolution.",
-      plainLanguage: "AI can listen and help with small stress, but it doesn't have a soul or body, so it can't truly feel your pain.",
+      technicalAnalysis: "If triage includes mental health presentations, conversational tone and classification must not be confused with therapeutic understanding. Escalation to qualified human care remains a separate design requirement.",
+      plainLanguage: "A system can route information without becoming a therapist.",
       keyClaims: [
-        { text: "Cognitive Behavioral Therapy (CBT) modules are digitizable.", label: "Established Fact" },
-        { text: "Empathetic simulation improves user engagement by 40%.", label: "Strong Evidence" }
+        { text: "Automated interaction is not equivalent to a therapeutic relationship.", label: "Strong Evidence" },
+        { text: "Mental health related routing should include explicit escalation paths.", label: "Theoretical Interpretation" }
       ]
     },
     {
       field: "Chemistry",
-      technicalAnalysis: "AI is accelerating 'De Novo' drug discovery via molecular docking simulations. We can now screen 10^12 compounds in hours instead of years.",
-      plainLanguage: "AI helps find new medicines by testing billions of chemical recipes in a computer very fast.",
+      technicalAnalysis: "Medication, laboratory, and biomarker data may enter triage decisions, but the model should not infer chemical or pharmacological meaning beyond the data and rules it was designed to interpret.",
+      plainLanguage: "Lab and medication information needs precise interpretation boundaries.",
       keyClaims: [
-        { text: "AlphaFold 2 solved protein structure prediction.", label: "Established Fact" },
-        { text: "Small molecule synthesis pipelines are now 60% autonomous.", label: "Strong Evidence" }
+        { text: "Laboratory measurements and medication data require contextual interpretation.", label: "Established Fact" },
+        { text: "Input boundaries should be explicit in the product specification.", label: "Theoretical Interpretation" }
       ]
     },
     {
       field: "Mathematics",
-      technicalAnalysis: "Category theory provides a framework for multi-modal alignment. We use topological data analysis to mapping the hidden 'latent space' of artificial intelligence.",
-      plainLanguage: "We use high-level math to see how AI links different ideas together, like mapping a giant invisible library.",
+      technicalAnalysis: "Performance should be evaluated with more than one aggregate score. Calibration, subgroup error, false negatives, false positives, prevalence, and decision thresholds can change the operational meaning of the same model output.",
+      plainLanguage: "One accuracy number is not enough to understand how a triage model behaves.",
       keyClaims: [
-        { text: "Manifold learning explains high-dimensional data clustering.", label: "Established Fact" },
-        { text: "Linear algebra is the core of backpropagation.", label: "Established Fact" }
+        { text: "Classification performance depends on thresholds and outcome prevalence.", label: "Established Fact" },
+        { text: "Multiple metrics are needed for operational evaluation.", label: "Strong Evidence" }
       ]
     },
     {
       field: "Computer Science",
-      technicalAnalysis: "The bottleneck is no longer FLOPs, but memory bandwidth. High-Bandwidth Memory (HBM) and Compute-in-Memory are essential for the next 10x jump.",
-      plainLanguage: "Computers are fast at math but slow at moving data around. We need to build memory and processors closer together.",
+      technicalAnalysis: "The technical design should specify model versioning, logging, input validation, fallback behavior, access control, monitoring, and rollback. These are software system requirements independent of model quality.",
+      plainLanguage: "The model is only one component; the surrounding software must also be reliable and observable.",
       keyClaims: [
-        { text: "Transformer scaling laws follow power-law distributions.", label: "Established Fact" },
-        { text: "State-space models (SSMs) offer linear sequence scaling.", label: "Strong Evidence" }
+        { text: "Production software requires monitoring and failure handling.", label: "Established Fact" },
+        { text: "Model version and input changes should be traceable.", label: "Strong Evidence" }
       ]
     },
     {
       field: "Robotics & Automation",
-      technicalAnalysis: "Proprioceptive feedback in manipulators is achieving sub-millimeter precision. End-to-end learning for control removes the need for brittle inverse kinematics code.",
-      plainLanguage: "Robots are getting as delicate as human hands. They don't need hard coding anymore; they learn by trying.",
+      technicalAnalysis: "Although the use case is not robotic, automation principles still apply: define authority, handoff points, safe states, and what happens when sensing or inference becomes unreliable.",
+      plainLanguage: "The system needs a safe way to hand control back to people when it is uncertain or unavailable.",
       keyClaims: [
-        { text: "Soft robotics improves human-collocation safety.", label: "Strong Evidence" },
-        { text: "Reinforcement learning optimizes bipedal locomotion.", label: "Established Fact" }
+        { text: "Automated systems benefit from explicit fallback states.", label: "Strong Evidence" },
+        { text: "Human handoff rules should be designed before deployment.", label: "Theoretical Interpretation" }
       ]
     },
     {
       field: "Music & Sound Science",
-      technicalAnalysis: "Generative audio is mastering timbre and spatialization. We've reached the point where Fourier analysis cannot distinguish synthetic from acoustic waveforms in blind tests.",
-      plainLanguage: "Computers can make music that sounds perfectly real. Even experts can't tell the difference anymore.",
+      technicalAnalysis: "If voice is used as an input, room acoustics, microphones, language, accent, noise, and speaking style can alter the captured signal. Audio quality should therefore be treated as an input condition, not as a transparent channel.",
+      plainLanguage: "Voice input changes with microphones, rooms, noise, accents, and speaking styles.",
       keyClaims: [
-        { text: "Diffractive neural networks simulate acoustic acoustics.", label: "Strong Evidence" },
-        { text: "WaveNet-style synthesis produces human-parity speech.", label: "Established Fact" }
+        { text: "Recorded audio is affected by capture conditions and acoustic environment.", label: "Established Fact" },
+        { text: "Voice based features should be evaluated across realistic recording conditions.", label: "Theoretical Interpretation" }
       ]
     },
     {
       field: "Systems Science",
-      technicalAnalysis: "Complexity Theory shows that AI introduces a 'Coupling Risk'. Small errors in one automated system can cascade through interconnected global infrastructures.",
-      plainLanguage: "If every system is connected by AI, a small glitch in one place could break everything else across the world.",
+      technicalAnalysis: "Triage affects queues, staffing, escalation, documentation, and downstream decisions. The intervention should therefore be evaluated as a change to a connected service system rather than as an isolated model benchmark.",
+      plainLanguage: "Changing triage can change the whole workflow around it.",
       keyClaims: [
-        { text: "Highly optimized systems are prone to fragility.", label: "Established Fact" },
-        { text: "Feedback loops in AI-trading cause flash crashes.", label: "Strong Evidence" }
+        { text: "Changes in one operational stage can affect downstream processes.", label: "Established Fact" },
+        { text: "Evaluation should include system level consequences.", label: "Theoretical Interpretation" }
       ]
     },
     {
       field: "Economics & Incentive Systems",
-      technicalAnalysis: "The Marginal Cost of Intelligence is approaching zero. This triggers a paradigm shift where wealth is derived from compute-energy ownership rather than labor equity.",
-      plainLanguage: "Thinking is becoming free. In the future, being rich will mean owning the computers and the power, not the workers.",
+      technicalAnalysis: "The relevant business case includes implementation cost, staff time, model access, monitoring, error handling, retraining, governance, and the value of any verified operational improvement.",
+      plainLanguage: "The price of the model is not the full cost of using it.",
       keyClaims: [
-        { text: "Automation replaces routinized cognitive labor first.", label: "Established Fact" },
-        { text: "Universal Basic Income becomes mathematically necessary at 40% job replacement.", label: "Theoretical Interpretation" }
+        { text: "Operational technology costs extend beyond initial software acquisition.", label: "Established Fact" },
+        { text: "The business case should include error and oversight costs.", label: "Theoretical Interpretation" }
       ]
     },
     {
       field: "Ethics & Governance",
-      technicalAnalysis: "Algorithmic Sovereignty is the next frontier of human rights. Without 'Open Weights', the future of thought is effectively a corporate-owned utility.",
-      plainLanguage: "If a few companies own all the smart AI, they control how we think. We need 'Public AI' to keep our minds free.",
+      technicalAnalysis: "Governance should define accountability, appeal, auditability, privacy, bias monitoring, access, and the decisions that remain reserved for qualified staff. These rules should exist before scale increases dependence on the system.",
+      plainLanguage: "Someone must remain accountable for how the system is used and how people can challenge its output.",
       keyClaims: [
-        { text: "Data provenance is key to copyright mitigation.", label: "Strong Evidence" },
-        { text: "Black-box algorithms violate the right to explanation.", label: "Established Fact" }
+        { text: "Accountability and privacy are material governance concerns in clinical systems.", label: "Strong Evidence" },
+        { text: "Appeal and audit mechanisms should be specified before deployment.", label: "Theoretical Interpretation" }
       ]
     },
     {
       field: "Anthropology & Sociology",
-      technicalAnalysis: "Technological Accelerationism is eroding local cultures toward a 'Global Monoculture'. We are trading diverse human heuristics for a single, silicon-averaged behavior set.",
-      plainLanguage: "AI is making everyone act and think the same way. We're losing the special, weird ways different cultures live.",
+      technicalAnalysis: "Triage is also a social interaction. Language, institutional trust, access patterns, staff roles, and local expectations can affect who benefits from the system and who experiences friction.",
+      plainLanguage: "The same tool can work differently in different communities and institutions.",
       keyClaims: [
-        { text: "Social media algorithms polarize distinct tribal groups.", label: "Established Fact" },
-        { text: "AI-generated art creates an aesthetic echo chamber.", label: "Strong Evidence" }
+        { text: "Technology use is shaped by social and institutional context.", label: "Strong Evidence" },
+        { text: "Local deployment research should include affected users and staff.", label: "Theoretical Interpretation" }
       ]
     }
   ],
   debate: {
     agreements: [
-      "AI requires revolutionary energy efficiency improvements.",
-      "Automation will fundamentally destabilize traditional labor economics.",
-      "Regulatory oversight must move from reactive to proactive."
+      "The model should be evaluated inside the real clinical workflow rather than only as a standalone benchmark.",
+      "Human oversight, fallback behavior, logging, and governance should be explicit before deployment.",
+      "Performance should be examined across relevant patient groups and operating conditions."
     ],
     conflicts: [
       {
-        description: "Economics vs. Ethics on Data Ownership",
-        evidenceStrength: 0.85,
-        realWorldImpact: 0.95,
+        description: "Automation may improve routing speed while increasing the cost of oversight and failure handling.",
+        evidenceStrength: 0.65,
+        realWorldImpact: 0.8,
         riskIfIncorrect: 0.75
       },
       {
-        description: "Physics vs. CS on Quantum Scalability",
-        evidenceStrength: 0.45,
-        realWorldImpact: 0.88,
-        riskIfIncorrect: 0.9
+        description: "A broader model scope may increase utility while making validation and accountability harder.",
+        evidenceStrength: 0.55,
+        realWorldImpact: 0.75,
+        riskIfIncorrect: 0.8
       }
     ],
-    resolution: "The panel concludes that human-centric AI requires an 'Energy-Labor-Ethics' triad. We must optimize for the brain's 20W efficiency while ensuring the economic gains are democratized.",
-    uncertainty: "Long-term emergent behavior of Recursive Self-Improvement remains an unpredictable black swan."
+    resolution: "A limited pilot is more defensible than immediate broad automation. Define the intended use, measure workflow outcomes and subgroup errors, keep explicit human escalation, and expand only if evidence from the target setting supports it.",
+    uncertainty: "This sample does not contain real hospital data, model validation results, cost data, or regulatory analysis. Those missing inputs could materially change the decision."
   },
   verdict: {
-    coreConclusion: "Humanity must steer AI toward biological-scale efficiency and decentralized ownership to avoid a centralized power collapse.",
-    supportingEvidenceSummary: "Physics proves current scaling is unsustainable; Economics proves current labor models will fail; Ethics demands a shift in ownership.",
-    economicFeasibility: "High, if we transition from income tax to equity-based data ownership.",
-    ethicalGovernance: "Requires a global 'AI Constitution' enforced by cryptographic proofs.",
-    risksTradeOffs: "Stalling AI development risks losing global competitiveness; accelerating it risks existential misalignment.",
-    confidenceLevel: 0.89,
-    failureConditions: "Concentration of hardware power in a single geopolitical territory."
+    coreConclusion: "Treat AI assisted triage as a bounded clinical operations pilot that must earn broader authority through local evidence.",
+    supportingEvidenceSummary: "The lenses converge on validation, human handoff, monitoring, workflow effects, and governance as prerequisites for responsible deployment.",
+    economicFeasibility: "Undetermined from this sample because implementation, staffing, monitoring, and error costs have not been supplied.",
+    ethicalGovernance: "Define accountability, privacy, audit, appeal, subgroup monitoring, and human override before live use.",
+    risksTradeOffs: "A narrow pilot may limit immediate efficiency gains, while premature scale may increase operational and clinical risk before local performance is understood.",
+    confidenceLevel: 0.62,
+    failureConditions: "Do not generalize the pilot if local validation, escalation reliability, subgroup performance, or governance controls are inadequate."
   }
 };
