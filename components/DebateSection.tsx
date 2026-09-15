@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Debate } from '../types';
 import { MessageSquare, CheckCircle, AlertTriangle, Lightbulb, HelpCircle } from 'lucide-react';
@@ -7,16 +6,19 @@ interface Props {
   debate: Debate;
 }
 
-const DebateSection: React.FC<Props> = ({ debate }) => {
-  const filledDots = (value: number) => Math.max(0, Math.min(10, Math.round(value * 10)));
+const tenStepCount = (value: number) => Math.round(Math.max(0, Math.min(1, value)) * 10);
 
+const DebateSection: React.FC<Props> = ({ debate }) => {
   return (
     <div className="bg-slate-900 text-white rounded-2xl p-6 lg:p-8 space-y-8 shadow-xl">
       <div className="flex items-center gap-3">
         <div className="p-2 bg-indigo-500 rounded-lg">
           <MessageSquare className="w-6 h-6 text-white" />
         </div>
-        <h2 className="text-2xl font-bold">Phase 2: Cross Lens Comparison</h2>
+        <div>
+          <h2 className="text-2xl font-bold">Cross Lens Comparison</h2>
+          <p className="text-sm text-slate-400 mt-1">The model compares agreement, conflict and unresolved uncertainty across the selected reasoning lenses.</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -42,37 +44,44 @@ const DebateSection: React.FC<Props> = ({ debate }) => {
               <h3 className="font-semibold uppercase tracking-wider text-sm">Conflicts and Contradictions</h3>
             </div>
             <div className="space-y-4">
-              {debate.conflicts.map((conflict, idx) => (
-                <div key={idx} className="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
-                  <p className="text-sm text-slate-200 mb-3">{conflict.description}</p>
-                  <div className="flex flex-wrap gap-4 text-[10px] font-mono">
-                    <div className="flex flex-col">
-                      <span className="text-slate-500">Model evidence score</span>
-                      <div className="flex gap-0.5 mt-1">
-                        {[...Array(10)].map((_, i) => (
-                          <div key={i} className={`w-2 h-2 rounded-full ${i < filledDots(conflict.evidenceStrength) ? 'bg-indigo-400' : 'bg-slate-700'}`} />
-                        ))}
+              {debate.conflicts.map((conflict, idx) => {
+                const evidence = tenStepCount(conflict.evidenceStrength);
+                const impact = tenStepCount(conflict.realWorldImpact);
+                const risk = tenStepCount(conflict.riskIfIncorrect);
+
+                return (
+                  <div key={idx} className="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                    <p className="text-sm text-slate-200 mb-3">{conflict.description}</p>
+                    <div className="flex flex-wrap gap-4 text-[10px] font-mono">
+                      <div className="flex flex-col">
+                        <span className="text-slate-500">Model evidence score</span>
+                        <div className="flex gap-0.5 mt-1">
+                          {[...Array(10)].map((_, i) => (
+                            <div key={i} className={`w-2 h-2 rounded-full ${i < evidence ? 'bg-indigo-400' : 'bg-slate-700'}`} />
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-slate-500">Model impact score</span>
+                        <div className="flex gap-0.5 mt-1">
+                          {[...Array(10)].map((_, i) => (
+                            <div key={i} className={`w-2 h-2 rounded-full ${i < impact ? 'bg-rose-400' : 'bg-slate-700'}`} />
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-slate-500">Model error risk score</span>
+                        <div className="flex gap-0.5 mt-1">
+                          {[...Array(10)].map((_, i) => (
+                            <div key={i} className={`w-2 h-2 rounded-full ${i < risk ? 'bg-indigo-400' : 'bg-slate-700'}`} />
+                          ))}
+                        </div>
                       </div>
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-slate-500">Model impact score</span>
-                      <div className="flex gap-0.5 mt-1">
-                        {[...Array(10)].map((_, i) => (
-                          <div key={i} className={`w-2 h-2 rounded-full ${i < filledDots(conflict.realWorldImpact) ? 'bg-rose-400' : 'bg-slate-700'}`} />
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-slate-500">Model error risk score</span>
-                      <div className="flex gap-0.5 mt-1">
-                        {[...Array(10)].map((_, i) => (
-                          <div key={i} className={`w-2 h-2 rounded-full ${i < filledDots(conflict.riskIfIncorrect) ? 'bg-indigo-400' : 'bg-slate-700'}`} />
-                        ))}
-                      </div>
-                    </div>
+                    <p className="text-[10px] text-slate-500 mt-3">These are model generated comparison scores, not calibrated probabilities.</p>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         </div>
