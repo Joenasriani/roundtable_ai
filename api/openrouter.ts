@@ -42,7 +42,7 @@ export const runOpenRouterAnalysis = async (input: string): Promise<AnalyzeResul
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
         "HTTP-Referer": appUrl,
-        "X-Title": "Roundtable AI Pro",
+        "X-Title": "Roundtable AI",
       },
       body: JSON.stringify({
         model,
