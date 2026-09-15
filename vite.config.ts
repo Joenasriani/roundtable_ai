@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
           manifest: {
             name: 'Roundtable AI',
             short_name: 'Roundtable',
-            description: 'Elite Interdisciplinary Reasoning Engine',
+            description: 'Reasoning interface for comparing fourteen disciplinary model lenses',
             theme_color: '#4f46e5',
             background_color: '#f8fafc',
             display: 'standalone',
