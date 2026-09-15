@@ -1,5 +1,5 @@
 {
-  "name": "Roundtable AI Pro",
-  "description": "The elite interdisciplinary reasoning engine. 14 academic experts, one definitive verdict. Solve complex problems with rigorous, multi-lens AI analysis.",
+  "name": "Roundtable AI",
+  "description": "Experimental reasoning interface that compares fourteen disciplinary model lenses, preserves disagreement, and reports uncertainty and failure conditions.",
   "requestFramePermissions": []
 }
