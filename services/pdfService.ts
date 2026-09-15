@@ -62,12 +62,12 @@ export const generateProfessionalPDF = (
     const expertData = filteredExperts.map(e => [
       e.field.toUpperCase(),
       e.technicalAnalysis,
-      e.keyClaims.map(c => `• ${c.text} [${c.label}]`).join('\n')
+      e.keyClaims.map(c => `• ${c.text} [Model label: ${c.label}]`).join('\n')
     ]);
 
     autoTable(doc, {
       startY: cursorY,
-      head: [['DISCIPLINARY LENS', 'ANALYSIS', 'KEY CLAIMS & EVIDENCE']],
+      head: [['DISCIPLINARY LENS', 'ANALYSIS', 'KEY CLAIMS AND MODEL LABELS']],
       body: expertData,
       headStyles: { fillColor: [79, 70, 229], textColor: [255, 255, 255], fontStyle: 'bold' },
       styles: { fontSize: 8, cellPadding: 5 },
@@ -87,7 +87,7 @@ export const generateProfessionalPDF = (
       cursorY = 30;
     }
     doc.setFontSize(14);
-    doc.text('2. CROSS-LENS COMPARISON', 20, cursorY);
+    doc.text('2. CROSS LENS COMPARISON', 20, cursorY);
     cursorY += 10;
 
     if (options.includeAgreements && result.debate.agreements.length > 0) {
@@ -119,7 +119,7 @@ export const generateProfessionalPDF = (
 
       autoTable(doc, {
         startY: cursorY,
-        head: [['CONFLICT DESCRIPTION', 'EVIDENCE', 'IMPACT', 'RISK']],
+        head: [['CONFLICT DESCRIPTION', 'MODEL EVIDENCE SCORE', 'MODEL IMPACT SCORE', 'MODEL ERROR RISK SCORE']],
         body: conflictData,
         headStyles: { fillColor: [225, 29, 72] },
         styles: { fontSize: 8 },
@@ -151,12 +151,12 @@ export const generateProfessionalPDF = (
     doc.text(coreConclusion, 25, cursorY);
     cursorY += (coreConclusion.length * 5) + 10;
     doc.setFontSize(11);
-    doc.text(`MODEL-REPORTED CONFIDENCE: ${(result.verdict.confidenceLevel * 100).toFixed(0)}%`, 25, cursorY);
+    doc.text(`MODEL REPORTED CONFIDENCE: ${(result.verdict.confidenceLevel * 100).toFixed(0)}%`, 25, cursorY);
   }
 
   cursorY += 15;
   doc.setFontSize(8);
   doc.setTextColor(100, 116, 139);
-  doc.text('Generated reasoning output. Verify consequential claims against primary sources or qualified human review.', 105, (doc as any).internal.pageSize.height - 10, { align: 'center' });
+  doc.text('Generated reasoning output. Model labels and scores are not independently calibrated. Verify consequential claims against primary sources or qualified human review.', 105, (doc as any).internal.pageSize.height - 10, { align: 'center', maxWidth: 180 });
   doc.save(`Roundtable_Reasoning_Record_${Date.now()}.pdf`);
 };
