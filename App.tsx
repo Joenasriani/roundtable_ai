@@ -4,7 +4,6 @@ import { generateRoundtableAnalysis } from './services/geminiService';
 import type { ExportOptions } from './services/pdfService';
 import { SAMPLE_PREMIUM_RESULT } from './mock-data';
 import { RoundtableResponse } from './types';
-// Added ShieldAlert to the imports
 import { Send, Loader2, BookOpen, AlertCircle, RefreshCw, ShieldAlert, Key, CreditCard, Lock, CheckCircle2, Zap, Shield, Globe, MessageSquare, Award, ChevronDown, Settings, X, ExternalLink, FileText, CheckSquare, Download, Users, BarChart3, Scale } from 'lucide-react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { motion, AnimatePresence } from 'motion/react';
@@ -28,7 +27,7 @@ const PricingCard = ({ title, price, features, isPro, onAction, children }: { ti
   <div className={`p-8 rounded-3xl border-2 flex flex-col ${isPro ? 'border-indigo-600 bg-white shadow-xl relative scale-105 z-10' : 'border-slate-100 bg-slate-50/50'}`}>
     {isPro && (
       <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-        Most Popular
+        Managed Session
       </div>
     )}
     <div className="mb-8">
@@ -51,27 +50,9 @@ const PricingCard = ({ title, price, features, isPro, onAction, children }: { ti
         onClick={onAction}
         className={`w-full py-4 rounded-xl font-bold transition-all ${isPro ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200' : 'bg-white text-slate-900 border border-slate-200 hover:bg-slate-50'}`}
       >
-        {isPro ? 'Upgrade to Elite' : 'Choose Community'}
+        {isPro ? 'Use Managed Roundtable' : 'Use Your Own Key'}
       </button>
     ) : children}
-  </div>
-);
-
-const Testimonial = ({ quote, author, role, avatar }: { quote: string, author: string, role: string, avatar: string }) => (
-  <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 italic text-slate-700 relative">
-    <div className="mb-4 text-indigo-400 opacity-20">
-      <MessageSquare className="w-10 h-10" />
-    </div>
-    <p className="mb-6 relative z-10">"{quote}"</p>
-    <div className="flex items-center gap-3 not-italic">
-      <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
-        <img src={avatar} alt={author} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-      </div>
-      <div>
-        <div className="text-sm font-bold text-slate-900">{author}</div>
-        <div className="text-xs text-slate-500">{role}</div>
-      </div>
-    </div>
   </div>
 );
 
@@ -111,10 +92,10 @@ const ExpertSkeleton = () => (
 const SteppedLoading = () => {
   const [step, setStep] = useState(0);
   const steps = [
-    { title: "Panel Assembly", desc: "Summoning 14 interdisciplinary specialists...", icon: Users, color: "text-indigo-500", bg: "bg-indigo-50" },
-    { title: "Domain Analysis", desc: "Executing deep reasoning across non-overlapping fields...", icon: Zap, color: "text-indigo-500", bg: "bg-indigo-50" },
-    { title: "Strategic Debate", desc: "Simulating intellectual friction and synthesis...", icon: BarChart3, color: "text-indigo-500", bg: "bg-indigo-50" },
-    { title: "Final Verdict", desc: "Constructing multi-layer ethical & economic conclusion...", icon: Scale, color: "text-indigo-500", bg: "bg-indigo-50" }
+    { title: "Lens Preparation", desc: "Preparing fourteen disciplinary reasoning lenses...", icon: Users, color: "text-indigo-500", bg: "bg-indigo-50" },
+    { title: "Independent Lens Passes", desc: "Running each lens against the same problem...", icon: Zap, color: "text-indigo-500", bg: "bg-indigo-50" },
+    { title: "Cross Lens Comparison", desc: "Comparing agreements, conflicts, assumptions, and missing evidence...", icon: BarChart3, color: "text-indigo-500", bg: "bg-indigo-50" },
+    { title: "Synthesis", desc: "Combining supported conclusions while preserving unresolved disagreement...", icon: Scale, color: "text-indigo-500", bg: "bg-indigo-50" }
   ];
 
   useEffect(() => {
@@ -169,7 +150,7 @@ const SteppedLoading = () => {
       <div className="text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-slate-100 shadow-sm">
           <Loader2 className="w-4 h-4 text-indigo-500 animate-spin" />
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Processing Intelligence Layers</span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Comparing Reasoning Lenses</span>
         </div>
       </div>
     </div>
@@ -217,7 +198,7 @@ const PDFExportModal = ({
         
         <div className="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
           <section className="space-y-3">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Experts to Include</h3>
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Reasoning Lenses to Include</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {result.experts.map(expert => (
                 <button
@@ -246,10 +227,10 @@ const PDFExportModal = ({
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Section Inclusion</h3>
             <div className="space-y-2">
               {[
-                { key: 'includeDebate', label: 'Strategic Debate' },
-                { key: 'includeAgreements', label: 'Consensus Agreements' },
-                { key: 'includeConflicts', label: 'Synthesis Conflicts' },
-                { key: 'includeVerdict', label: 'Final Multi-layer Verdict' }
+                { key: 'includeDebate', label: 'Cross Lens Comparison' },
+                { key: 'includeAgreements', label: 'Shared Findings' },
+                { key: 'includeConflicts', label: 'Unresolved Conflicts' },
+                { key: 'includeVerdict', label: 'Final Synthesis' }
               ].map(sec => (
                 <label key={sec.key} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer hover:bg-slate-100 transition-colors">
                   <span className="text-sm font-medium text-slate-700">{sec.label}</span>
@@ -277,7 +258,7 @@ const PDFExportModal = ({
             disabled={options.selectedExperts.length === 0}
             className="flex-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-indigo-200"
           >
-            Download customized dossier
+            Download reasoning record
           </button>
         </div>
       </div>
@@ -325,11 +306,10 @@ const App: React.FC = () => {
   const [customKey, setCustomKey] = useState<string>(() => localStorage.getItem('roundtable_custom_key') || '');
   const [useCustomKey, setUseCustomKey] = useState<boolean>(() => localStorage.getItem('roundtable_use_custom_key') === 'true');
 
-  // Sanitize PayPal Client ID
   const rawClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID;
   const paypalClientId = (rawClientId && !rawClientId.includes('@') && rawClientId !== 'YOUR_PAYPAL_CLIENT_ID') 
     ? rawClientId 
-    : 'sb'; // Fallback to 'sb' (PayPal Sandbox default)
+    : 'sb';
 
   useEffect(() => {
     const checkKey = async () => {
@@ -339,7 +319,7 @@ const App: React.FC = () => {
           setHasKey(selected);
         } catch (e) {
           console.error("Error checking API key:", e);
-          setHasKey(true); // Assume okay if check fails
+          setHasKey(true);
         }
       } else {
         setHasKey(true);
@@ -390,7 +370,6 @@ const App: React.FC = () => {
   };
 
   const handlePay = () => {
-    // Direct scroll to payment section
     document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -421,10 +400,9 @@ const App: React.FC = () => {
   const handleAnalyze = useCallback(async () => {
     if (!input.trim() || isLoading) return;
     
-    // Only enforce payment if NOT using a custom key AND no paid tier is active
     if (!isPaid && !useCustomKey && !isFreeMode) {
-      setError("Choose a plan in PAY to continue: $1 with your own API key, or $5 using our managed NVIDIA API.");
-      handlePay(); // Scroll to pricing
+      setError("Choose a session option to continue: $1 with your own OpenRouter key, or $5 for the managed OpenRouter session.");
+      handlePay();
       return;
     }
 
@@ -446,13 +424,11 @@ const App: React.FC = () => {
       const data = await generateRoundtableAnalysis(input, key, provider);
       setResult(data);
       
-      // Consume the paid session after one successful analysis
       if (isPaid && !useCustomKey) {
         setIsPaid(false);
         sessionStorage.removeItem('roundtable_paid');
       }
 
-      // Reset community mode after one use
       if (isFreeMode && !isPaid) {
         setIsFreeMode(false);
       }
@@ -472,7 +448,6 @@ const App: React.FC = () => {
   return (
     <PayPalScriptProvider options={{ "client-id": paypalClientId, currency: "USD" }}>
       <div className="min-h-screen bg-slate-50 pb-20 pt-4">
-      {/* Navigation / Header */}
       <nav className="sticky top-4 z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white/80 backdrop-blur-md border border-slate-200 rounded-2xl shadow-sm">
           <div className="px-4 sm:px-6">
@@ -511,7 +486,7 @@ const App: React.FC = () => {
                   className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 transition-colors shadow-sm"
                 >
                   <CreditCard className="w-3.5 h-3.5" />
-                  Unlock Full Engine
+                  Use Managed Session
                 </button>
               )}
             </div>
@@ -521,21 +496,19 @@ const App: React.FC = () => {
     </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        {/* Intro Section */}
         {!result && !isLoading && (
           <>
             <div className="max-w-4xl mx-auto text-center mb-16 py-12">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold uppercase tracking-widest mb-6">
                 <Award className="w-4 h-4" />
-                The Gold Standard in Interdisciplinary AI
+                Fourteen Lenses, One Problem
               </div>
               <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
-                Elite Interdisciplinary <br />
-                <span className="text-indigo-600">Reasoning Engine</span>
+                Fourteen Disciplinary <br />
+                <span className="text-indigo-600">Reasoning Lenses</span>
               </h1>
               <p className="text-xl text-slate-600 mb-10 leading-relaxed max-w-4xl mx-auto">
-                Submit complex problems to a closed-room roundtable of 14 elite academic experts from different fields (
-                <span className="text-purple-700 font-semibold">Physics</span>, <span className="text-purple-700 font-semibold">Biology</span>, <span className="text-purple-700 font-semibold">Medicine</span>, <span className="text-purple-700 font-semibold">Psychology</span>, <span className="text-purple-700 font-semibold">Psychotherapy</span>, <span className="text-purple-700 font-semibold">Chemistry</span>, <span className="text-purple-700 font-semibold">Mathematics</span>, <span className="text-purple-700 font-semibold">Computer Science</span>, <span className="text-purple-700 font-semibold">Robotics</span>, <span className="text-purple-700 font-semibold">Music Science</span>, <span className="text-purple-700 font-semibold">Systems Science</span>, <span className="text-purple-700 font-semibold">Economics</span>, <span className="text-purple-700 font-semibold">Ethics</span>, and <span className="text-purple-700 font-semibold">Anthropology</span>). Get rigorous analysis, interdisciplinary debate, and a definitive structured verdict.
+                Submit one problem to fourteen disciplinary model lenses covering physics, biology, medicine, psychology, psychotherapy, chemistry, mathematics, computer science, robotics, music and sound science, systems science, economics, ethics, and anthropology. Compare where the outputs agree, conflict, rely on assumptions, or lack evidence.
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
                 <button 
@@ -549,25 +522,24 @@ const App: React.FC = () => {
                   onClick={() => document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' })}
                   className="px-8 py-4 bg-white text-slate-900 border border-slate-200 rounded-2xl font-bold text-lg hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
                 >
-                  Access Tiers
+                  Session Options
                 </button>
                 <button 
                   onClick={handleShowSample}
                   className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold text-lg hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 group shadow-xl shadow-indigo-100"
                 >
                   <BookOpen className="w-5 h-5 text-indigo-200 group-hover:scale-110 transition-transform" />
-                  View Premium Sample
+                  View Sample Output
                 </button>
               </div>
 
-              {/* Intelligence Layer Selection Description */}
               <div className="max-w-xl mx-auto mb-8 bg-slate-100/50 border border-slate-200 p-5 rounded-[2rem] text-center">
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-slate-600 text-[13px] font-medium leading-relaxed">
                   <div className="flex items-center gap-2 group">
                     <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
                       <Key className="w-4 h-4 text-indigo-600" />
                     </div>
-                    <span><strong className="text-slate-900 font-bold">BYO Key:</strong> OpenRouter key accepted</span>
+                    <span><strong className="text-slate-900 font-bold">Your OpenRouter Key:</strong> direct provider access</span>
                   </div>
                   <div className="hidden sm:block w-px h-6 bg-slate-200" />
                   <div className={`flex items-center gap-2 group transition-all ${isFreeMode ? 'scale-105' : ''}`}>
@@ -576,15 +548,14 @@ const App: React.FC = () => {
                     </div>
                     <span>
                       <strong className={`${isFreeMode ? 'text-indigo-600' : 'text-indigo-600'} font-bold`}>
-                        {isFreeMode ? 'Community Session Active' : 'Elite Managed:'}
+                        {isFreeMode ? 'Own Key Session Active' : 'Managed Session:'}
                       </strong> 
-                      {isFreeMode ? ' Optimized community analysis' : ' Optimized academic ensemble'}
+                      {isFreeMode ? ' using your OpenRouter account' : ' fourteen lens workflow using the managed model'}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Input Form - Moved here */}
               <div id="input-section" className="max-w-2xl mx-auto scroll-mt-24">
                 <div className="relative">
                   <textarea
@@ -612,37 +583,35 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* Features Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
               <FeatureCard 
                 icon={Globe} 
-                title="14 Expert Lenses" 
-                description="From Physics to Ethics, our engine simulates a diverse panel of specialists for true 360° reasoning." 
+                title="14 Reasoning Lenses" 
+                description="The same problem is examined through fourteen disciplinary model lenses from physics through ethics." 
               />
               <FeatureCard 
                 icon={Shield} 
-                title="Rigorous Evidence" 
-                description="Every claim is tagged by evidence strength: Established Fact, Strong Evidence, or Theoretical." 
+                title="Evidence Labels" 
+                description="Claims receive explicit evidence labels, but consequential claims still require source verification." 
               />
               <FeatureCard 
                 icon={Zap} 
-                title="Interdisciplinary Debate" 
-                description="Experts don't just talk; they debate. We identify conflicts and resolve them through logic." 
+                title="Cross Lens Comparison" 
+                description="The system compares agreements, conflicts, assumptions, and missing evidence without forcing consensus." 
               />
             </div>
 
-            {/* How it works */}
             <div className="mb-24 py-16 bg-white rounded-[3rem] border border-slate-100 shadow-sm px-8 md:px-16">
               <div className="text-center mb-16">
-                <h2 className="text-3xl font-bold text-slate-900 mb-4">The Roundtable Process</h2>
-                <p className="text-slate-500">A structured workflow inspired by elite academic research panels.</p>
+                <h2 className="text-3xl font-bold text-slate-900 mb-4">How the Comparison Runs</h2>
+                <p className="text-slate-500">One question passes through independent disciplinary lenses before their outputs are compared.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
                 {[
-                  { step: "01", title: "Input", desc: "Submit your complex situation or question." },
-                  { step: "02", title: "Analysis", desc: "14 experts evaluate independently in their domains." },
-                  { step: "03", title: "Debate", desc: "Interdisciplinary cross-examination and conflict resolution." },
-                  { step: "04", title: "Verdict", desc: "A final, multi-layered synthesis with confidence levels." }
+                  { step: "01", title: "Input", desc: "Submit the situation or question." },
+                  { step: "02", title: "Lens Passes", desc: "Fourteen reasoning lenses evaluate the same question independently." },
+                  { step: "03", title: "Comparison", desc: "Outputs are compared for agreement, conflict, assumptions, and missing evidence." },
+                  { step: "04", title: "Synthesis", desc: "The final synthesis preserves uncertainty and unresolved disagreement." }
                 ].map((s, i) => (
                   <div key={i} className="relative">
                     <div className="text-5xl font-black text-indigo-50 mb-4">{s.step}</div>
@@ -653,21 +622,20 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* Pricing Section */}
             <div id="pricing-section" className="mb-24 scroll-mt-24">
               <div className="text-center mb-16">
-                <h2 className="text-3xl font-bold text-slate-900 mb-4">Select Your Intelligence Tier</h2>
-                <p className="text-slate-500">Go to PAY to choose: $1 with your own API key, or $5 with our managed NVIDIA API.</p>
+                <h2 className="text-3xl font-bold text-slate-900 mb-4">Choose How to Run the Session</h2>
+                <p className="text-slate-500">Choose $1 with your own OpenRouter key or $5 for the managed OpenRouter session.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 <PricingCard 
-                  title="Community" 
+                  title="Your OpenRouter Key" 
                   price="$1.00" 
                   features={[
-                    "1 interdisciplinary session",
-                    "Bring your own AI API key",
-                    "Ideal for users with existing provider credits",
-                    "Session-based unlock"
+                    "One fourteen lens session",
+                    "Use your own OpenRouter API key",
+                    "Provider billed model access",
+                    "One session access"
                   ]}
                   onAction={() => {}}
                 >
@@ -685,7 +653,7 @@ const App: React.FC = () => {
                             payee: {
                               email_address: "joenasr@gmail.com"
                             },
-                            description: "Roundtable AI BYO API Key Session",
+                            description: "Roundtable AI OpenRouter Key Session",
                           }],
                         });
                       }}
@@ -705,17 +673,17 @@ const App: React.FC = () => {
                   </div>
                 </PricingCard>
                 <PricingCard 
-                  title="Elite Roundtable" 
+                  title="Managed Roundtable" 
                   price="$5.00" 
                   isPro={true}
                   features={[
-                    "Full 14-expert panel",
-                    "Runs on our managed NVIDIA API",
-                    "Deep interdisciplinary debate",
-                    "Professional PDF Dossier Export",
-                    "Evidence-tagged claims",
-                    "Economic & Ethical governance",
-                    "Confidence level metrics"
+                    "Fourteen disciplinary reasoning lenses",
+                    "Managed OpenRouter session",
+                    "Cross lens comparison",
+                    "PDF reasoning record",
+                    "Explicit evidence labels",
+                    "Economic and ethical lenses",
+                    "Model reported confidence field"
                   ]}
                   onAction={() => {}}
                 >
@@ -733,7 +701,7 @@ const App: React.FC = () => {
                             payee: {
                               email_address: "joenasr@gmail.com"
                             },
-                            description: "Roundtable AI Elite Session Unlock",
+                            description: "Roundtable AI Managed Session",
                           }],
                         });
                       }}
@@ -751,69 +719,49 @@ const App: React.FC = () => {
                       className="w-full mt-4 py-2 text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors uppercase tracking-widest flex items-center justify-center gap-2"
                     >
                       <BookOpen className="w-3.5 h-3.5" />
-                      Preview a High-Res Report
+                      Preview Sample Output
                     </button>
                   </div>
                 </PricingCard>
               </div>
             </div>
 
-            {/* Testimonials */}
-            <div className="mb-24">
-              <div className="text-center mb-16">
-                <h2 className="text-3xl font-bold text-slate-900 mb-4">Trusted by Strategic Thinkers</h2>
-                <p className="text-slate-500">Join the elite users leveraging interdisciplinary AI.</p>
+            <div className="mb-24 max-w-4xl mx-auto">
+              <div className="text-center mb-10">
+                <h2 className="text-3xl font-bold text-slate-900 mb-4">What the Output Is</h2>
+                <p className="text-slate-500">A structured comparison of model generated disciplinary perspectives, with disagreement and uncertainty kept visible.</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <Testimonial 
-                  quote="The depth of analysis is unparalleled. It's like having a board of directors for every decision."
-                  author="Sarah Chen"
-                  role="Strategic Consultant"
-                  avatar="https://picsum.photos/seed/sarah/100/100"
-                />
-                <Testimonial 
-                  quote="Finally, an AI that doesn't just guess, but reasons through multiple academic lenses."
-                  author="Dr. Marcus Thorne"
-                  role="Research Director"
-                  avatar="https://picsum.photos/seed/marcus/100/100"
-                />
-                <Testimonial 
-                  quote="The interdisciplinary debate section alone saved us weeks of cross-departmental meetings."
-                  author="Elena Rodriguez"
-                  role="Product Lead"
-                  avatar="https://picsum.photos/seed/elena/100/100"
-                />
+              <div className="bg-white rounded-3xl border border-slate-100 p-8 text-left text-slate-600 leading-relaxed">
+                The fourteen lenses are software roles. They are not a human expert panel, peer review process, clinical assessment, or professional authority. Evidence labels and confidence values are model reported fields and are not independently calibrated. Verify consequential claims against primary sources, official documentation, or qualified human review.
               </div>
             </div>
 
-            {/* FAQ */}
             <div className="max-w-3xl mx-auto mb-24">
               <div className="text-center mb-16">
                 <h2 className="text-3xl font-bold text-slate-900 mb-4">Frequently Asked Questions</h2>
               </div>
               <div className="bg-white rounded-3xl border border-slate-100 shadow-sm px-8">
                 <FAQItem 
-                  question="How does the 14-expert simulation work?" 
-                  answer="We use advanced prompt engineering and multi-persona modeling to ensure each expert reasons strictly within their defined academic domain, preventing cross-contamination of logic until the debate phase." 
+                  question="How do the fourteen reasoning lenses work?" 
+                  answer="One model is instructed to analyze the same problem through fourteen disciplinary roles. These are software reasoning lenses, not human experts, academics, clinicians, or peer reviewers." 
                 />
                 <FAQItem 
-                  question="Is the payment secure?" 
-                  answer="Yes, all payments are processed through Stripe, the industry standard for secure online transactions. We never store your credit card information." 
+                  question="How is payment handled?" 
+                  answer="Payments shown in this interface are processed through PayPal. This application does not implement its own card storage." 
                 />
                 <FAQItem 
                   question="Can I use my own API key?" 
-                  answer="Yes. The platform uses OpenRouter only. On the $1 plan, you can bring your own OpenRouter key; on the $5 plan, the server key is used for a managed session." 
+                  answer="Yes. The platform uses OpenRouter only. On the $1 option, you can use your own OpenRouter key; on the $5 option, the server key is used for the managed session." 
                 />
                 <FAQItem 
-                  question="What kind of problems is this best for?" 
-                  answer="It excels at complex, multi-faceted problems where technical, ethical, and economic factors collide—such as policy decisions, product strategy, or philosophical puzzles." 
+                  question="What kind of problems is this intended for?" 
+                  answer="It is intended for problems that benefit from comparing technical, ethical, economic, scientific, and social frames. The output remains model generated and should be verified when consequences matter." 
                 />
               </div>
             </div>
           </>
         )}
 
-        {/* Results */}
         {isLoading && <SteppedLoading />}
 
         {result && !isLoading && (
@@ -822,7 +770,7 @@ const App: React.FC = () => {
               <div className="sticky top-24 z-20 mx-auto max-w-xl flex items-center gap-2 mb-10 px-2 lg:px-0">
                 <div className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest text-center shadow-xl border border-white/20 flex items-center justify-center gap-3">
                   <span className="animate-pulse">✨</span>
-                  PREVIEW: Sample High-Resolution Dossier
+                  PREVIEW: SAMPLE REASONING OUTPUT
                 </div>
                 <button 
                   onClick={handleCloseSample}
@@ -836,7 +784,6 @@ const App: React.FC = () => {
                 </button>
               </div>
             )}
-            {/* Classification Badges */}
             <div className="flex flex-wrap justify-center gap-2">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] w-full text-center mb-1">Inferred Intent</span>
               {result.intent.map((tag) => (
@@ -847,11 +794,8 @@ const App: React.FC = () => {
             </div>
 
             <Suspense fallback={<ExpertSkeleton />}><ExpertPanel experts={result.experts} /></Suspense>
-
             <Suspense fallback={<div className="h-72 bg-white rounded-3xl border border-slate-100 animate-pulse" />}><AnalysisChart experts={result.experts} /></Suspense>
-
             <Suspense fallback={<div className="h-56 bg-white rounded-3xl border border-slate-100 animate-pulse" />}><DebateSection debate={result.debate} /></Suspense>
-
             <Suspense fallback={<div className="h-56 bg-white rounded-3xl border border-slate-100 animate-pulse" />}><VerdictSection verdict={result.verdict} /></Suspense>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-10">
@@ -860,7 +804,7 @@ const App: React.FC = () => {
                 className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200"
               >
                 <FileText className="w-5 h-5" />
-                Export Professional Dossier
+                Export Reasoning Record
               </button>
               
               <button 
@@ -879,18 +823,15 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* Footer Info */}
       <footer className="mt-20 py-10 border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6 text-slate-400 text-sm">
-          <p>© 2024 Closed Roundtable Reasoning Engine. Standardized academic knowledge only.</p>
+          <p>© 2026 Roundtable AI. Model generated reasoning output; consequential claims require verification.</p>
           <div className="flex gap-6">
-            {/* Added ShieldAlert from lucide-react to fix missing reference error */}
-            <span className="flex items-center gap-1"><ShieldAlert className="w-4 h-4" /> Safety Constraints</span>
+            <span className="flex items-center gap-1"><ShieldAlert className="w-4 h-4" /> Output Boundaries</span>
           </div>
         </div>
       </footer>
 
-      {/* Settings Modal */}
       {showSettings && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white w-full max-w-md rounded-[2rem] shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95 duration-200">
@@ -911,7 +852,6 @@ const App: React.FC = () => {
               <div className="space-y-4">
                 <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Select Provider</h3>
                 
-                {/* Standard Provider */}
                 <button
                   onClick={() => {
                     setUseCustomKey(false);
@@ -923,13 +863,12 @@ const App: React.FC = () => {
                     <div className={`w-5 h-5 rounded-full ${!useCustomKey ? 'bg-white' : 'bg-slate-300'}`} />
                   </div>
                   <div>
-                    <div className="font-bold text-slate-900">Elite Managed Roundtable</div>
-                    <div className="text-xs text-slate-500">Deploy our optimized ensemble of 14 specialists. ($5.00/session)</div>
+                    <div className="font-bold text-slate-900">Managed Roundtable</div>
+                    <div className="text-xs text-slate-500">Run the fourteen lens workflow through the managed OpenRouter session. ($5.00/session)</div>
                   </div>
                   {!useCustomKey && <CheckCircle2 className="w-5 h-5 text-indigo-600 ml-auto" />}
                 </button>
 
-                {/* Custom Provider */}
                 <button
                   onClick={() => {
                     setUseCustomKey(true);
@@ -941,8 +880,8 @@ const App: React.FC = () => {
                     <Key className={`w-5 h-5 ${useCustomKey ? 'text-white' : 'text-slate-500'}`} />
                   </div>
                   <div>
-                    <div className="font-bold text-slate-900">Private API Integration</div>
-                    <div className="text-xs text-slate-500">Use your own secure API key for direct provider-billed access.</div>
+                    <div className="font-bold text-slate-900">Use Your OpenRouter Key</div>
+                    <div className="text-xs text-slate-500">Use your own OpenRouter key for provider billed access.</div>
                   </div>
                   {useCustomKey && <CheckCircle2 className="w-5 h-5 text-indigo-600 ml-auto" />}
                 </button>
@@ -1012,7 +951,6 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* PDF Export Customization Modal */}
       {result && (
         <PDFExportModal
           isOpen={showExportModal}
