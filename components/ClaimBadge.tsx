@@ -13,9 +13,15 @@ const ClaimBadge: React.FC<Props> = ({ label }) => {
     'Theoretical Interpretation': 'bg-indigo-50 text-indigo-600 border-indigo-100',
   };
 
+  const displayLabels: Record<EvidenceLabel, string> = {
+    'Established Fact': 'Model label: established',
+    'Strong Evidence': 'Model label: strong evidence',
+    'Theoretical Interpretation': 'Model label: interpretation',
+  };
+
   return (
     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${styles[label]}`}>
-      {label}
+      {displayLabels[label]}
     </span>
   );
 };
