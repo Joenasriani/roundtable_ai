@@ -8,13 +8,15 @@ interface Props {
 }
 
 const DebateSection: React.FC<Props> = ({ debate }) => {
+  const filledDots = (value: number) => Math.max(0, Math.min(10, Math.round(value * 10)));
+
   return (
     <div className="bg-slate-900 text-white rounded-2xl p-6 lg:p-8 space-y-8 shadow-xl">
       <div className="flex items-center gap-3">
         <div className="p-2 bg-indigo-500 rounded-lg">
           <MessageSquare className="w-6 h-6 text-white" />
         </div>
-        <h2 className="text-2xl font-bold">Phase 2: Structured Interdisciplinary Debate</h2>
+        <h2 className="text-2xl font-bold">Phase 2: Cross Lens Comparison</h2>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -22,7 +24,7 @@ const DebateSection: React.FC<Props> = ({ debate }) => {
           <section>
             <div className="flex items-center gap-2 mb-3 text-indigo-400">
               <CheckCircle className="w-5 h-5" />
-              <h3 className="font-semibold uppercase tracking-wider text-sm">Cross-Disciplinary Agreements</h3>
+              <h3 className="font-semibold uppercase tracking-wider text-sm">Areas of Agreement</h3>
             </div>
             <ul className="space-y-3">
               {debate.agreements.map((item, idx) => (
@@ -37,7 +39,7 @@ const DebateSection: React.FC<Props> = ({ debate }) => {
           <section>
             <div className="flex items-center gap-2 mb-3 text-indigo-500">
               <AlertTriangle className="w-5 h-5" />
-              <h3 className="font-semibold uppercase tracking-wider text-sm">Conflicts & Contradictions</h3>
+              <h3 className="font-semibold uppercase tracking-wider text-sm">Conflicts and Contradictions</h3>
             </div>
             <div className="space-y-4">
               {debate.conflicts.map((conflict, idx) => (
@@ -45,26 +47,26 @@ const DebateSection: React.FC<Props> = ({ debate }) => {
                   <p className="text-sm text-slate-200 mb-3">{conflict.description}</p>
                   <div className="flex flex-wrap gap-4 text-[10px] font-mono">
                     <div className="flex flex-col">
-                      <span className="text-slate-500">Evidence</span>
+                      <span className="text-slate-500">Model evidence score</span>
                       <div className="flex gap-0.5 mt-1">
                         {[...Array(10)].map((_, i) => (
-                          <div key={i} className={`w-2 h-2 rounded-full ${i < conflict.evidenceStrength ? 'bg-indigo-400' : 'bg-slate-700'}`} />
+                          <div key={i} className={`w-2 h-2 rounded-full ${i < filledDots(conflict.evidenceStrength) ? 'bg-indigo-400' : 'bg-slate-700'}`} />
                         ))}
                       </div>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-slate-500">Impact</span>
+                      <span className="text-slate-500">Model impact score</span>
                       <div className="flex gap-0.5 mt-1">
                         {[...Array(10)].map((_, i) => (
-                          <div key={i} className={`w-2 h-2 rounded-full ${i < conflict.realWorldImpact ? 'bg-rose-400' : 'bg-slate-700'}`} />
+                          <div key={i} className={`w-2 h-2 rounded-full ${i < filledDots(conflict.realWorldImpact) ? 'bg-rose-400' : 'bg-slate-700'}`} />
                         ))}
                       </div>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-slate-500">Risk</span>
+                      <span className="text-slate-500">Model error risk score</span>
                       <div className="flex gap-0.5 mt-1">
                         {[...Array(10)].map((_, i) => (
-                          <div key={i} className={`w-2 h-2 rounded-full ${i < conflict.riskIfIncorrect ? 'bg-indigo-400' : 'bg-slate-700'}`} />
+                          <div key={i} className={`w-2 h-2 rounded-full ${i < filledDots(conflict.riskIfIncorrect) ? 'bg-indigo-400' : 'bg-slate-700'}`} />
                         ))}
                       </div>
                     </div>
@@ -79,7 +81,7 @@ const DebateSection: React.FC<Props> = ({ debate }) => {
           <section>
             <div className="flex items-center gap-2 mb-3 text-indigo-400">
               <Lightbulb className="w-5 h-5" />
-              <h3 className="font-semibold uppercase tracking-wider text-sm">Synthesis & Resolution</h3>
+              <h3 className="font-semibold uppercase tracking-wider text-sm">Synthesis</h3>
             </div>
             <p className="text-sm text-slate-300 leading-relaxed bg-indigo-500/10 p-5 rounded-2xl border border-indigo-500/30">
               {debate.resolution}
