@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { ExpertAnalysis } from '../types';
 import { EXPERTS } from '../constants';
 import ClaimBadge from './ClaimBadge';
-import { ChevronDown, ChevronUp, Beaker, Globe, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronUp, Beaker } from 'lucide-react';
 import { motion, AnimatePresence, LayoutGroup } from 'motion/react';
 
 interface Props {
@@ -46,10 +45,6 @@ const ExpertPanel: React.FC<Props> = ({ experts }) => {
             <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Phase 1: Lens Analysis</h2>
             <p className="text-sm text-slate-500 font-medium">Fourteen disciplinary reasoning lenses examine the same question independently.</p>
           </div>
-        </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full text-[11px] font-bold uppercase tracking-wider self-start md:self-center">
-          <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-          Live Search Grounding Active
         </div>
       </div>
 
