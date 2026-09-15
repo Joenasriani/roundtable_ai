@@ -9,7 +9,7 @@ interface AnalysisChartProps {
 
 const AnalysisChart: React.FC<AnalysisChartProps> = ({ experts }) => {
   const data = experts.map(e => ({
-    subject: e.field.split(' ')[0], // Shorten name
+    subject: e.field.split(' ')[0],
     claims: e.keyClaims.length,
     fullField: e.field
   }));
@@ -18,7 +18,7 @@ const AnalysisChart: React.FC<AnalysisChartProps> = ({ experts }) => {
     <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm mb-20">
       <div className="text-center mb-8">
         <h3 className="text-xl font-bold text-slate-900 mb-2">Interdisciplinary Intensity Map</h3>
-        <p className="text-slate-500 text-sm">Visualizing the depth of analysis across all 14 academic domains.</p>
+        <p className="text-slate-500 text-sm">Distribution of identified claims across the fourteen disciplinary reasoning lenses.</p>
       </div>
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -27,7 +27,7 @@ const AnalysisChart: React.FC<AnalysisChartProps> = ({ experts }) => {
             <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 10, fontWeight: 600 }} />
             <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={false} axisLine={false} />
             <Radar
-              name="Expert Depth"
+              name="Claims by Lens"
               dataKey="claims"
               stroke="#4f46e5"
               fill="#4f46e5"
