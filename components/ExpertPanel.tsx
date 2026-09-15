@@ -43,8 +43,8 @@ const ExpertPanel: React.FC<Props> = ({ experts }) => {
             <Beaker className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Phase 1: Expert Synthesis</h2>
-            <p className="text-sm text-slate-500 font-medium">Independent deep-dives from 14 academic specialists.</p>
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Phase 1: Lens Analysis</h2>
+            <p className="text-sm text-slate-500 font-medium">Fourteen disciplinary reasoning lenses examine the same question independently.</p>
           </div>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full text-[11px] font-bold uppercase tracking-wider self-start md:self-center">
@@ -77,7 +77,6 @@ const ExpertPanel: React.FC<Props> = ({ experts }) => {
                     : 'border-slate-100 bg-white hover:border-indigo-200 hover:shadow-md z-10'
                 }`}
               >
-                {/* Background Accent */}
                 {expertConfig?.color && (
                   <div className={`absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 opacity-[0.03] rounded-full ${expertConfig.color.split(' ')[0]}`} />
                 )}
@@ -94,7 +93,7 @@ const ExpertPanel: React.FC<Props> = ({ experts }) => {
                     </motion.div>
                     <motion.div layout transition={springTransition}>
                       <h3 className="font-bold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors uppercase text-xs tracking-wider">{analysis.field}</h3>
-                      <p className="text-[10px] font-bold text-slate-400 mt-0.5">ESTABLISHED FIELD</p>
+                      <p className="text-[10px] font-bold text-slate-400 mt-0.5">DISCIPLINARY LENS</p>
                     </motion.div>
                   </div>
                   <motion.div layout transition={springTransition} className={`p-2 rounded-full transition-colors ${isExpanded ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-400'}`}>
