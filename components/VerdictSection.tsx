@@ -1,20 +1,22 @@
 
 import React from 'react';
 import { FinalVerdict } from '../types';
-import { Gavel, Target, Info, ShieldAlert, Globe, Zap, AlertCircle } from 'lucide-react';
+import { Target, Info, ShieldAlert, Globe, Zap, AlertCircle } from 'lucide-react';
 
 interface Props {
   verdict: FinalVerdict;
 }
 
 const VerdictSection: React.FC<Props> = ({ verdict }) => {
+  const reportedConfidence = Math.max(0, Math.min(100, verdict.confidenceLevel * 100));
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2 mb-4">
         <div className="p-2 bg-indigo-600 rounded-lg text-white">
-          <Gavel className="w-5 h-5" />
+          <Target className="w-5 h-5" />
         </div>
-        <h2 className="text-xl font-bold text-slate-800">Final Multi-Layer Verdict</h2>
+        <h2 className="text-xl font-bold text-slate-800">Final Synthesis</h2>
       </div>
 
       <div className="bg-white border rounded-2xl overflow-hidden shadow-sm">
@@ -33,7 +35,7 @@ const VerdictSection: React.FC<Props> = ({ verdict }) => {
             <section>
               <div className="flex items-center gap-2 mb-2 text-slate-500">
                 <Info className="w-4 h-4" />
-                <h4 className="text-xs font-bold uppercase tracking-widest">Interdisciplinary Justification</h4>
+                <h4 className="text-xs font-bold uppercase tracking-widest">Supporting Reasoning</h4>
               </div>
               <p className="text-sm text-slate-600 leading-relaxed">{verdict.supportingEvidenceSummary}</p>
             </section>
@@ -41,7 +43,7 @@ const VerdictSection: React.FC<Props> = ({ verdict }) => {
             <section>
               <div className="flex items-center gap-2 mb-2 text-slate-500">
                 <Globe className="w-4 h-4" />
-                <h4 className="text-xs font-bold uppercase tracking-widest">Economic & Adoption Feasibility</h4>
+                <h4 className="text-xs font-bold uppercase tracking-widest">Economic and Adoption Considerations</h4>
               </div>
               <p className="text-sm text-slate-600 leading-relaxed">{verdict.economicFeasibility}</p>
             </section>
@@ -49,7 +51,7 @@ const VerdictSection: React.FC<Props> = ({ verdict }) => {
             <section>
               <div className="flex items-center gap-2 mb-2 text-slate-500">
                 <ShieldAlert className="w-4 h-4" />
-                <h4 className="text-xs font-bold uppercase tracking-widest">Ethical & Governance Check</h4>
+                <h4 className="text-xs font-bold uppercase tracking-widest">Ethics and Governance Considerations</h4>
               </div>
               <p className="text-sm text-slate-600 leading-relaxed">{verdict.ethicalGovernance}</p>
             </section>
@@ -59,20 +61,20 @@ const VerdictSection: React.FC<Props> = ({ verdict }) => {
             <section className="bg-slate-50 p-4 rounded-xl border border-slate-100">
               <div className="flex items-center gap-2 mb-2 text-indigo-600">
                 <Zap className="w-4 h-4" />
-                <h4 className="text-xs font-bold uppercase tracking-widest">Risks & Trade-offs</h4>
+                <h4 className="text-xs font-bold uppercase tracking-widest">Risks and Tradeoffs</h4>
               </div>
               <p className="text-sm text-slate-700 leading-relaxed">{verdict.risksTradeOffs}</p>
             </section>
 
             <section className="bg-indigo-900 text-white p-6 rounded-xl relative overflow-hidden">
                <div className="relative z-10">
-                 <h4 className="text-xs font-bold uppercase tracking-widest opacity-60 mb-1">Expert Confidence Level</h4>
+                 <h4 className="text-xs font-bold uppercase tracking-widest opacity-60 mb-1">Model Reported Confidence</h4>
                  <div className="flex items-end gap-2">
-                   <span className="text-5xl font-bold leading-none">{verdict.confidenceLevel}%</span>
-                   <span className="text-xs mb-1 opacity-60 font-mono">Statistical Probability</span>
+                   <span className="text-5xl font-bold leading-none">{reportedConfidence.toFixed(0)}%</span>
+                   <span className="text-xs mb-1 opacity-60 font-mono">not independently calibrated</span>
                  </div>
                  <div className="w-full bg-white/20 h-2 rounded-full mt-4 overflow-hidden">
-                   <div className="bg-indigo-400 h-full transition-all duration-1000" style={{ width: `${verdict.confidenceLevel}%` }} />
+                   <div className="bg-indigo-400 h-full transition-all duration-1000" style={{ width: `${reportedConfidence}%` }} />
                  </div>
                </div>
                <Target className="absolute -right-8 -bottom-8 w-32 h-32 opacity-10" />
