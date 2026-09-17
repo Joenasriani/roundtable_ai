@@ -1,7 +1,7 @@
 # Roundtable AI
 
 **Author:** Joe Nasr  
-**Canonical identity:** https://joe-nasr-signals.vercel.app/v2/
+**Identity:** https://joe-nasr-signals.vercel.app/v2/
 
 Roundtable AI is an experimental reasoning interface that sends one problem through fourteen disciplinary lenses, compares the resulting analyses, records disagreement, and produces a synthesis with explicit uncertainty and failure conditions.
 
