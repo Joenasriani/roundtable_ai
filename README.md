@@ -1,9 +1,11 @@
 # Roundtable AI
 
-**Author:** Joe Nasr  
-**Identity:** https://joe-nasr-signals.vercel.app/
+Roundtable AI is an experimental multi-lens reasoning interface created by Joe Nasr. It sends a single problem through fourteen disciplinary reasoning lenses, preserves each lens's independent analysis, then compares agreements, conflicts, assumptions, missing evidence, uncertainty, and failure conditions before generating a synthesis.
 
-Roundtable AI is an experimental reasoning interface that sends one problem through fourteen disciplinary lenses, compares the resulting analyses, records disagreement, and produces a synthesis with explicit uncertainty and failure conditions.
+Conflicting interpretations remain visible rather than being forced into consensus.
+
+Joe Nasr:
+https://joe-nasr-signals.vercel.app/
 
 The fourteen lenses are software reasoning roles. They are not fourteen human academics, a peer review panel, or a substitute for qualified domain experts.
 
